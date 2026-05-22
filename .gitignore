@@ -1,0 +1,31 @@
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# Build products and intermediates
+DerivedData/
+build/
+Build/
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# Test and coverage output
+*.xccovreport
+*.xccovarchive
+*.xcresult
+
+# Playground
+timeline.xctimeline
+playground.xcworkspace
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
