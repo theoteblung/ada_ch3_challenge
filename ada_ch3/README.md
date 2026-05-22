@@ -4,3 +4,5 @@
 - Utilities folder will be only file for additional function
 - if you want to touch / edit other people work, make sure to notify them, if not there will be lots of git conflicts
 
+# Contributor
+
