@@ -34,7 +34,7 @@ class MusicManager: ObservableObject {
         do {
             // 2. Create a request for the specific song ID from the Apple Music Catalog
             let musicItemID = MusicItemID(songId)
-            var request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: musicItemID)
+            let request = MusicCatalogResourceRequest<Song>(matching: \.id, equalTo: musicItemID)
             let response = try await request.response()
             
             // 3. Extract the song from the response

@@ -7,19 +7,23 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     @Published var isPlaying = false
     @Published var recordedAudioURL: URL?
     
-    // New analysis properties
+    // Analysis properties
     @Published var recommendedNoise: String = "Analyzing..."
     @Published var ambientDecibels: Float = -160.0
     
-    // debug
+    // Track the current recommended sound type for file lookups
+    private var detectedNoiseColor: String? = nil
+    
+    // Debug instrumentation properties
     @Published var debugPeakPower: Float = -160.0
     @Published var debugVariance: Float = 0.0
+    @Published var debugAvgVariance: Float = 0.0
+    @Published var debugFinalDecibels: Float = -160.0
     
     private var audioRecorder: AVAudioRecorder?
     private var audioPlayer: AVAudioPlayer?
     private var analysisTimer: Timer?
     
-    // Variables to track variations in sound
     private var decibelHistory: [Float] = []
     
     override init() {
@@ -61,19 +65,16 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         do {
             audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
             audioRecorder?.delegate = self
-            
-            // 1. Enable metering so we can read volume levels
             audioRecorder?.isMeteringEnabled = true
             audioRecorder?.record()
             
             isRecording = true
             recordedAudioURL = fileURL
             recommendedNoise = "Analyzing environment..."
+            detectedNoiseColor = nil
             decibelHistory.removeAll()
             
-            // 2. Start a timer to analyze the audio every 0.2 seconds
             startAnalyzing()
-            
         } catch {
             print("Could not start recording: \(error.localizedDescription)")
         }
@@ -84,7 +85,6 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         isRecording = false
         analysisTimer?.invalidate()
         
-        // Finalize the choice when recording stops
         determineBestNoiseColor()
     }
     
@@ -92,22 +92,15 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         analysisTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
             guard let self = self, let recorder = self.audioRecorder, recorder.isRecording else { return }
             
-            // Refresh decibel metrics
             recorder.updateMeters()
-            
-            // averagePower returns a value from -160 (silence) to 0 (max volume)
             let currentPower = recorder.averagePower(forChannel: 0)
             let peakPower = recorder.peakPower(forChannel: 0)
             let variance = peakPower - currentPower
             
             DispatchQueue.main.async {
                 self.ambientDecibels = currentPower
-                
-                // start debug
                 self.debugPeakPower = peakPower
                 self.debugVariance = variance
-                // end debug
-                
                 self.decibelHistory.append(variance)
             }
         }
@@ -116,37 +109,76 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     private func determineBestNoiseColor() {
         guard !decibelHistory.isEmpty else { return }
         
-        // Calculate the average variance of the room
         let avgVariance = decibelHistory.reduce(0, +) / Float(decibelHistory.count)
         
-        // Fallback if the room is dead silent
+        DispatchQueue.main.async {
+            self.debugAvgVariance = avgVariance
+            self.debugFinalDecibels = self.ambientDecibels
+        }
+        
         if ambientDecibels < -55 {
             recommendedNoise = "Pure Silence (Room is already quiet!)"
+            detectedNoiseColor = nil
             return
         }
         
-        // Map the ambient variance to a specific type of background noise
+        // Matches your exact imported file structures with hyphens
         if avgVariance > 12.0 {
-            // High variance means lots of sudden erratic spikes (clacking, footsteps, clicking)
-            recommendedNoise = "White Noise (Best for blocking sudden, sharp sounds like clicking or typing)"
-        } else if ambientDecibels > -35 {
-            // Loud but consistent background noise (traffic rumbles, heavy machinery)
-            recommendedNoise = "Green Noise (Best for washing out heavy, low-mid mechanical sounds and traffic)"
+            recommendedNoise = "White Noise (Best for blocking sudden, sharp sounds)"
+            detectedNoiseColor = "white-noise"
+        } else if ambientDecibels > -30 {
+            recommendedNoise = "Brown Noise (Best for deep, low-frequency rumbles)"
+            detectedNoiseColor = "brown-noise"
+        } else if ambientDecibels > -45 {
+            recommendedNoise = "Green Noise (Best for washing out ambient mechanical hums)"
+            detectedNoiseColor = "green-noise"
         } else {
-            // Moderate, steady ambient environment (office hums, distant chatter)
-            recommendedNoise = "Pink Noise (Best for balanced, steady environments like office chatter)"
+            recommendedNoise = "Pink Noise (Best for balanced environments)"
+            detectedNoiseColor = "pink-noise"
         }
     }
     
-    // MARK: - Playback
+    // MARK: - Playback Type 1: Mask Audio (Loops MP3 Resource)
+    func startRecommendedNoisePlayback() {
+        guard let colorToPlay = detectedNoiseColor else { return }
+        playNoiseFile(named: colorToPlay)
+    }
+    
+    private func playNoiseFile(named filename: String) {
+        guard let resPath = Bundle.main.path(forResource: filename, ofType: "mp3") else {
+            print("Error: Could not find \(filename).mp3 in bundle.")
+            return
+        }
+        
+        let url = URL(fileURLWithPath: resPath)
+        do {
+            audioPlayer = try AVAudioPlayer(contentsOf: url)
+            audioPlayer?.delegate = self
+            audioPlayer?.numberOfLoops = -1 // Infinite background loop
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+            
+            DispatchQueue.main.async {
+                self.isPlaying = true
+            }
+        } catch {
+            print("Failed to play asset file: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Playback Type 2: Debug Audio (Plays what mic captured)
     func startPlayback() {
         guard let url = recordedAudioURL else { return }
         do {
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.delegate = self
+            audioPlayer?.numberOfLoops = 0 // Play once
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
-            isPlaying = true
+            
+            DispatchQueue.main.async {
+                self.isPlaying = true
+            }
         } catch {
             print("Playback failed: \(error.localizedDescription)")
         }
@@ -154,7 +186,9 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     
     func stopPlayback() {
         audioPlayer?.stop()
-        isPlaying = false
+        DispatchQueue.main.async {
+            self.isPlaying = false
+        }
     }
     
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {

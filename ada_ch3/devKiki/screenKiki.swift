@@ -13,7 +13,6 @@
 //
 
 import SwiftUI
-
 import Foundation
 import AVFoundation
 
@@ -24,6 +23,7 @@ struct ScreenKiki: View {
         if audioManager.recommendedNoise.contains("White") { return .gray }
         if audioManager.recommendedNoise.contains("Pink") { return .pink }
         if audioManager.recommendedNoise.contains("Green") { return .green }
+        if audioManager.recommendedNoise.contains("Brown") { return .brown }
         return .blue
     }
     
@@ -104,7 +104,29 @@ struct ScreenKiki: View {
                             .foregroundColor(audioManager.debugVariance > 12 ? .red : .primary)
                     }
                     
-                    Text("• Rule 1: Silence if Avg < -55 dB\n• Rule 2: White Noise if Avg Variance > 12 dB\n• Rule 3: Green Noise if Avg > -35 dB\n• Rule 4: Otherwise Pink Noise")
+                    HStack {
+                        Text("Session Avg Variance:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(String(format: "%.2f dB", audioManager.debugAvgVariance))
+                            .font(.system(.body, design: .monospaced))
+                            .bold()
+                            .foregroundColor(.orange)
+                    }
+                    
+                    HStack {
+                        Text("Decision Vol (Db Check):")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Text(String(format: "%.2f dB", audioManager.debugFinalDecibels))
+                            .font(.system(.body, design: .monospaced))
+                            .bold()
+                            .foregroundColor(.purple) // Styled distinctly to track volume decisions
+                    }
+                    
+                    Text("• Rule 1: Silence if Avg < -55 dB\n• Rule 2: White Noise if Avg Variance > 12 dB\n• Rule 3: Brown Noise if Avg > -30 dB\n• Rule 4: Green Noise if Avg > -45 dB\n• Rule 5: Otherwise Pink Noise")
                         .font(.caption2)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
@@ -120,10 +142,13 @@ struct ScreenKiki: View {
                 
                 // Action Buttons
                 VStack(spacing: 15) {
+                    // Button 1: Start / Stop Analyzer
                     Button(action: {
                         if audioManager.isRecording {
                             audioManager.stopRecording()
                         } else {
+                            // Automatically shut down audio playback when shifting back to analyzer mode
+                            if audioManager.isPlaying { audioManager.stopPlayback() }
                             audioManager.startRecording()
                         }
                     }) {
@@ -136,7 +161,30 @@ struct ScreenKiki: View {
                             .cornerRadius(14)
                     }
                     
-                    if let _ = audioManager.recordedAudioURL {
+                    // Button 2: Dynamic Sound Machine (Plays your imported MP3 files loopable!)
+                    if !audioManager.isRecording && audioManager.recommendedNoise != "Analyzing..." && !audioManager.recommendedNoise.contains("Silence") {
+                        Button(action: {
+                            if audioManager.isPlaying {
+                                audioManager.stopPlayback()
+                            } else {
+                                audioManager.startRecommendedNoisePlayback()
+                            }
+                        }) {
+                            Label(
+                                title: { Text(audioManager.isPlaying ? "Turn Off Mask Sound" : "Play Suggested Mask Sound") },
+                                icon: { Image(systemName: audioManager.isPlaying ? "speaker.slash.fill" : "speaker.wave.3.fill") }
+                            )
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(themeColor)
+                            .cornerRadius(14)
+                        }
+                    }
+                    
+                    // Button 3: Debug playback tool (Hear what mic captured)
+                    if let _ = audioManager.recordedAudioURL, audioManager.isRecording == false {
                         Button(action: {
                             if audioManager.isPlaying {
                                 audioManager.stopPlayback()
@@ -145,14 +193,14 @@ struct ScreenKiki: View {
                             }
                         }) {
                             Label(
-                                title: { Text(audioManager.isPlaying ? "Stop Listening" : "Hear What It Heard") },
+                                title: { Text(audioManager.isPlaying ? "Stop Listening" : "Hear What Mic Heard") },
                                 icon: { Image(systemName: audioManager.isPlaying ? "stop.fill" : "play.fill") }
                             )
-                            .font(.headline)
-                            .foregroundColor(.white)
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(themeColor)
+                            .background(Color(.systemGray5))
                             .cornerRadius(14)
                         }
                     }
