@@ -33,15 +33,17 @@ struct FunctionUtil: View {
                         if audioManager.isPlaying {
                             audioManager.stopPlayback()
                         } else {
-                            audioManager.playNoiseFile(named: "white-noise", volume: 0.1)
+//                            audioManager.playNoiseFile(named: "pink-noise", volume: 1.0, ext: "wav")
+//                            audioManager.playNoiseFile(named: "white-noise", volume: 1.0, ext: "wav")
+                            audioManager.playNoiseFile(named: "brown-noise", volume: 1.0, ext: "caf")
                         }
                     }) {
-                        Text(audioManager.isRecording ? "Stop & Match" : "Analyze Room")
+                        Text(audioManager.isPlaying ? "Stop" : "Play")
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding()
                             .frame(maxWidth: .infinity)
-                            .background(audioManager.isRecording ? Color.red : Color.blue)
+                            .background(audioManager.isPlaying ? Color.red : Color.blue)
                             .cornerRadius(14)
                     }
                     

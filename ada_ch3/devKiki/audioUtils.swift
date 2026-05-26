@@ -27,6 +27,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     
     private var decibelHistory: [Float] = []
     
+    
     override init() {
         super.init()
         setupAudioSession()
@@ -148,8 +149,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         playNoiseFile(named: colorToPlay, volume: detectedNoiseVolume)
     }
     
-    func playNoiseFile(named filename: String, volume: Float = 1.0) {
-        guard let resPath = Bundle.main.path(forResource: filename, ofType: "caf") else {
+    func playNoiseFile(named filename: String, volume: Float = 1.0, ext: String = "wav") {
+        guard let resPath = Bundle.main.path(forResource: filename, ofType: ext) else {
             print("Error: Could not find \(filename).mp3 in bundle.")
             return
         }
@@ -203,4 +204,5 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
             self.isPlaying = false
         }
     }
+
 }
