@@ -7,13 +7,18 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		274B5D5B2FC572F600682683 /* ada_ch3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ada_ch3.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		68A4E5192FC03D5500F93B48 /* ada_ch3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ada_ch3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		68A4E51B2FC03D5500F93B48 /* ada_ch3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ada_ch3;
+			sourceTree = "<group>";
+		};
+		6A0DC3D42FC56B770040DEE5 /* MainScreenSim */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MainScreenSim;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -33,8 +38,17 @@
 			isa = PBXGroup;
 			children = (
 				68A4E51B2FC03D5500F93B48 /* ada_ch3 */,
-				274B5D5B2FC572F600682683 /* ada_ch3.app */,
+				68A4E51A2FC03D5500F93B48 /* Products */,
+				6A0DC3D42FC56B770040DEE5 /* MainScreenSim */,
 			);
+			sourceTree = "<group>";
+		};
+		68A4E51A2FC03D5500F93B48 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				68A4E5192FC03D5500F93B48 /* ada_ch3.app */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -54,12 +68,13 @@
 			);
 			fileSystemSynchronizedGroups = (
 				68A4E51B2FC03D5500F93B48 /* ada_ch3 */,
+				6A0DC3D42FC56B770040DEE5 /* MainScreenSim */,
 			);
 			name = ada_ch3;
 			packageProductDependencies = (
 			);
 			productName = ada_ch3;
-			productReference = 274B5D5B2FC572F600682683 /* ada_ch3.app */;
+			productReference = 68A4E5192FC03D5500F93B48 /* ada_ch3.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -87,7 +102,7 @@
 			mainGroup = 68A4E5102FC03D5500F93B48;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 68A4E5102FC03D5500F93B48;
+			productRefGroup = 68A4E51A2FC03D5500F93B48 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
