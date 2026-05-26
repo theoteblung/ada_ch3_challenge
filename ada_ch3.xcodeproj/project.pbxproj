@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		68A4E5192FC03D5500F93B48 /* ada_ch3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ada_ch3.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		02330FF52FC57CC40083BD02 /* ada_ch3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ada_ch3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -38,17 +38,9 @@
 			isa = PBXGroup;
 			children = (
 				68A4E51B2FC03D5500F93B48 /* ada_ch3 */,
-				68A4E51A2FC03D5500F93B48 /* Products */,
 				6A0DC3D42FC56B770040DEE5 /* MainScreenSim */,
+				02330FF52FC57CC40083BD02 /* ada_ch3.app */,
 			);
-			sourceTree = "<group>";
-		};
-		68A4E51A2FC03D5500F93B48 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				68A4E5192FC03D5500F93B48 /* ada_ch3.app */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,7 +66,7 @@
 			packageProductDependencies = (
 			);
 			productName = ada_ch3;
-			productReference = 68A4E5192FC03D5500F93B48 /* ada_ch3.app */;
+			productReference = 02330FF52FC57CC40083BD02 /* ada_ch3.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -102,7 +94,7 @@
 			mainGroup = 68A4E5102FC03D5500F93B48;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 68A4E51A2FC03D5500F93B48 /* Products */;
+			productRefGroup = 68A4E5102FC03D5500F93B48;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -258,6 +250,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UF4YMK8Q6S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
@@ -269,6 +262,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -293,6 +287,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = UF4YMK8Q6S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
@@ -304,6 +299,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
