@@ -33,7 +33,7 @@ struct FunctionUtil: View {
                         if audioManager.isPlaying {
                             audioManager.stopPlayback()
                         } else {
-                            audioManager.playNoiseFile()
+                            audioManager.playNoiseFile(named: "white-noise", volume: 0.1)
                         }
                     }) {
                         Text(audioManager.isRecording ? "Stop & Match" : "Analyze Room")
@@ -45,49 +45,6 @@ struct FunctionUtil: View {
                             .cornerRadius(14)
                     }
                     
-                    // Button 2: Dynamic Sound Machine (Plays your imported MP3 files loopable!)
-                    if !audioManager.isRecording && audioManager.recommendedNoise != "Analyzing..." && !audioManager.recommendedNoise.contains("Silence") {
-                        Button(action: {
-                            if audioManager.isPlaying {
-                                audioManager.stopPlayback()
-                            } else {
-                                audioManager.startRecommendedNoisePlayback()
-                            }
-                        }) {
-                            Label(
-                                title: { Text(audioManager.isPlaying ? "Turn Off Mask Sound" : "Play Suggested Mask Sound") },
-                                icon: { Image(systemName: audioManager.isPlaying ? "speaker.slash.fill" : "speaker.wave.3.fill") }
-                            )
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(themeColor)
-                            .cornerRadius(14)
-                        }
-                    }
-                    
-                    // Button 3: Debug playback tool (Hear what mic captured)
-                    if let _ = audioManager.recordedAudioURL, audioManager.isRecording == false {
-                        Button(action: {
-                            if audioManager.isPlaying {
-                                audioManager.stopPlayback()
-                            } else {
-                                audioManager.startPlayback()
-                            }
-                        }) {
-                            Label(
-                                title: { Text(audioManager.isPlaying ? "Stop Listening" : "Hear What Mic Heard") },
-                                icon: { Image(systemName: audioManager.isPlaying ? "stop.fill" : "play.fill") }
-                            )
-                            .font(.subheadline)
-                            .foregroundColor(.primary)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color(.systemGray5))
-                            .cornerRadius(14)
-                        }
-                    }
                 }
             }
             .padding()

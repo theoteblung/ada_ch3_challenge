@@ -148,8 +148,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         playNoiseFile(named: colorToPlay, volume: detectedNoiseVolume)
     }
     
-    private func playNoiseFile(named filename: String, volume: Float = 1.0) {
-        guard let resPath = Bundle.main.path(forResource: filename, ofType: "mp3") else {
+    func playNoiseFile(named filename: String, volume: Float = 1.0) {
+        guard let resPath = Bundle.main.path(forResource: filename, ofType: "caf") else {
             print("Error: Could not find \(filename).mp3 in bundle.")
             return
         }
