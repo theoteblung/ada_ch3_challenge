@@ -13,6 +13,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     
     // Track the current recommended sound type for file lookups
     private var detectedNoiseColor: String? = nil
+    private var detectedNoiseVolume: Float = 1.0
     
     // Debug instrumentation properties
     @Published var debugPeakPower: Float = -160.0
@@ -126,6 +127,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         if avgVariance > 12.0 {
             recommendedNoise = "White Noise (Best for blocking sudden, sharp sounds)"
             detectedNoiseColor = "white-noise"
+            detectedNoiseVolume = 0.1
         } else if ambientDecibels > -30 {
             recommendedNoise = "Brown Noise (Best for deep, low-frequency rumbles)"
             detectedNoiseColor = "brown-noise"
@@ -141,10 +143,12 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     // MARK: - Playback Type 1: Mask Audio (Loops MP3 Resource)
     func startRecommendedNoisePlayback() {
         guard let colorToPlay = detectedNoiseColor else { return }
-        playNoiseFile(named: colorToPlay)
+        let detectedNoiseVolume = detectedNoiseVolume
+        
+        playNoiseFile(named: colorToPlay, volume: detectedNoiseVolume)
     }
     
-    private func playNoiseFile(named filename: String) {
+    private func playNoiseFile(named filename: String, volume: Float = 1.0) {
         guard let resPath = Bundle.main.path(forResource: filename, ofType: "mp3") else {
             print("Error: Could not find \(filename).mp3 in bundle.")
             return
@@ -155,6 +159,9 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
             audioPlayer = try AVAudioPlayer(contentsOf: url)
             audioPlayer?.delegate = self
             audioPlayer?.numberOfLoops = -1 // Infinite background loop
+            
+            audioPlayer?.volume = volume
+            
             audioPlayer?.prepareToPlay()
             audioPlayer?.play()
             
