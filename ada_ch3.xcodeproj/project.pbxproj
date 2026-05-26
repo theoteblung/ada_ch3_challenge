@@ -16,6 +16,11 @@
 			path = ada_ch3;
 			sourceTree = "<group>";
 		};
+		6A0DC3D42FC56B770040DEE5 /* MainScreenSim */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = MainScreenSim;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,6 +39,7 @@
 			children = (
 				68A4E51B2FC03D5500F93B48 /* ada_ch3 */,
 				68A4E51A2FC03D5500F93B48 /* Products */,
+				6A0DC3D42FC56B770040DEE5 /* MainScreenSim */,
 			);
 			sourceTree = "<group>";
 		};
@@ -62,6 +68,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				68A4E51B2FC03D5500F93B48 /* ada_ch3 */,
+				6A0DC3D42FC56B770040DEE5 /* MainScreenSim */,
 			);
 			name = ada_ch3;
 			packageProductDependencies = (
