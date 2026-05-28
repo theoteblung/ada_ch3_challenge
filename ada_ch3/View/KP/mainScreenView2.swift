@@ -18,12 +18,15 @@ struct mainScreenView2: View {
     @State private var selectedTimer: Int? = nil
     @State private var isLightMode: Bool = false
     @State private var isTapped: Bool = false
+    @State private var showInfoModal: Bool = false
+    @State private var isPlaying: Bool = false
+
 
     // MARK: - Design Tokens
     private let background      = Color(hex: "#1A1916")
-    private let innerCircle     = Color(hex: "#CAABA6")   // opacity 0.70 applied inline
-    private let middleCircle    = Color(hex: "#CAABA6")   // opacity 0.50 applied inline
-    private let outerCircle     = Color(hex: "#99645A")   // opacity 0.20 applied inline
+    private let innerCircle     = Color(hex: "#CAABA6")
+    private let middleCircle    = Color(hex: "#CAABA6")
+    private let outerCircle     = Color(hex: "#99645A")
     private let accentText      = Color(hex: "#CAABA6")
     private let appNameColor    = Color.white.opacity(0.20)
 
@@ -33,49 +36,57 @@ struct mainScreenView2: View {
     private let innerDiameter:  CGFloat = 110
 
     var body: some View {
-        ZStack {
+        if isPlaying {
+            ActiveView(onStop: {
+                isPlaying = false
+            })
+        } else {
+            ZStack {
 
-            // ── Background
-            background
-                .ignoresSafeArea()
+                // ── Background
+                background
+                    .ignoresSafeArea()
 
-            // ── Main layout
-            VStack(spacing: 0) {
+                // ── Main layout
+                VStack(spacing: 0) {
 
-                // Top bar
-                topBar
-                    .padding(.horizontal, 20)
-                    .padding(.top, 4)
+                    // Top bar
+                    topBar
+                        .padding(.horizontal, 20)
+                        .padding(.top, 4)
 
-                Spacer()
+                    Spacer()
 
-                // Tap area + label (left-aligned cluster)
-                tapCluster
-                    .padding(.bottom, 60)
+                    // Tap area + label
+                    tapCluster
+                        .padding(.bottom, 60)
 
-                Spacer(minLength: 0)
+                    Spacer(minLength: 0)
 
-                // App name footer
-                Text("[App name]")
-                    .font(.system(size: 17, weight: .regular, design: .default))
-                    .foregroundColor(appNameColor)
-                    .padding(.bottom, 32)
+                    // App name footer
+                    Text("[App name]")
+                        .font(.system(size: 17, weight: .regular, design: .default))
+                        .foregroundColor(appNameColor)
+                        .padding(.bottom, 32)
+                }
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                handleTap()
+            }
+            .preferredColorScheme(isLightMode ? .light : .dark)
+            .onAppear { startPulse() }
+            .sheet(isPresented: $showInfoModal) {
+                InfoModalView()
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            handleTap()
-        }
-        .preferredColorScheme(isLightMode ? .light : .dark)
-        .onAppear { startPulse() }
     }
-
+    
     // MARK: - Top Bar
     private var topBar: some View {
         HStack {
-            Menu {
-                Button("Info") {
-                }
+            Button {
+                showInfoModal = true
             } label: {
                 Image(systemName: "info.circle.fill")
                     .font(.system(size: 22, weight: .regular))
@@ -226,7 +237,6 @@ struct mainScreenView2: View {
                     .foregroundColor(accentText)
             }
         }
-        // Push cluster to the left-center area of the screen
         .padding(.leading, 28)
         .frame(maxWidth: .infinity, alignment: .leading)
         .offset(y: 150)
@@ -257,9 +267,7 @@ struct mainScreenView2: View {
 
     // MARK: - Tap Handler
     private func handleTap() {
-        guard !isTapped else { return }
-        isTapped = true
-        // Add your navigation / action here
+        isPlaying = true
     }
 }
 
