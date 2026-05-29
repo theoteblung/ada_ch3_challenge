@@ -36,6 +36,7 @@ struct FunctionUtil: View {
 //                            audioManager.playNoiseFile(named: "pink-noise", volume: 1.0, ext: "wav")
 //                            audioManager.playNoiseFile(named: "white-noise", volume: 1.0, ext: "wav")
                             audioManager.playNoiseFile(named: "brown-noise", volume: 1.0, ext: "caf")
+                            
                         }
                     }) {
                         Text(audioManager.isPlaying ? "Stop" : "Play")
@@ -46,7 +47,57 @@ struct FunctionUtil: View {
                             .background(audioManager.isPlaying ? Color.red : Color.blue)
                             .cornerRadius(14)
                     }
-                    
+                    Button(action: {
+                        audioManager.playNoiseDynamic(.whiteNoise, volume: 0.25)
+                    }) {
+                        Text("Play White Noise")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .cornerRadius(14)
+                    }
+                    Button(action: {
+                        audioManager.playNoiseDynamic(.pinkNoise, volume: 0.5)
+                            
+                        
+                    }) {
+                        Text("Play Pink Noise")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .cornerRadius(14)
+                    }
+                    Button(action: {
+                        audioManager.playNoiseDynamic(.brownNoise, volume: 0.75)
+                            
+                        
+                    }) {
+                        Text("Play Brown Noise")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .cornerRadius(14)
+                    }
+                    Button(action: {
+                        if audioManager.isPlaying {
+                            audioManager.stopNoiseDynamic()
+                        } else {
+                        }
+                    }) {
+                        Text(audioManager.isPlaying ? "Stop" : "No Sound is playing")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(audioManager.isPlaying ? Color.red : Color.blue)
+                            .cornerRadius(14)
+                    }
                 }
             }
             .padding()

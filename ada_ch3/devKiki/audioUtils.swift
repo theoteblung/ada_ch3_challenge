@@ -27,6 +27,11 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     
     private var decibelHistory: [Float] = []
     
+    // theo test dynamic player
+    @Published private(set) var soundPlaying: Sound?
+    private var soundPlayer: AVAudioPlayer?
+    private var soundPlayerLists: [String: AVAudioPlayer] = [:]   // keyed by file name
+    private let soundFadeDuration = 1.0
     
     override init() {
         super.init()
@@ -172,6 +177,42 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         } catch {
             print("Failed to play asset file: \(error.localizedDescription)")
         }
+    }
+    private func dynamicNoisePlayer(for sound: Sound) -> AVAudioPlayer? {
+        if let soundPlayerList = soundPlayerLists[sound.name] { return soundPlayerList }
+        guard let url = Bundle.main.url(forResource: sound.name, withExtension: sound.ext) else {
+            print("⚠️ \(sound.name).\(sound.ext) not in bundle"); return nil
+        }
+        let p = try? AVAudioPlayer(contentsOf: url)
+        p?.numberOfLoops = -1
+        p?.prepareToPlay()
+        soundPlayerLists[sound.name] = p
+        return p
+    }
+    func playNoiseDynamic(_ sound: Sound, volume: Float = 1.0) {
+        guard sound != soundPlaying else { return }       // already on it
+        guard let nextSoundPlayer = dynamicNoisePlayer(for: sound) else { return }
+        
+        let currentSoundPlayer = soundPlayer
+
+        // fade in the new one -> transition to next sound
+        nextSoundPlayer.volume = 0
+        nextSoundPlayer.currentTime = 0
+        nextSoundPlayer.play()
+        nextSoundPlayer.setVolume(volume, fadeDuration: soundFadeDuration/2)
+
+        // fade out the old one
+        currentSoundPlayer?.setVolume(0, fadeDuration: soundFadeDuration)
+
+        soundPlayer = nextSoundPlayer
+        soundPlaying = sound
+        self.isPlaying = true
+    }
+    func stopNoiseDynamic() {
+        soundPlayer?.setVolume(0, fadeDuration: soundFadeDuration)
+        soundPlayer = nil
+        soundPlaying = nil
+        self.isPlaying = false
     }
     
     // MARK: - Playback Type 2: Debug Audio (Plays what mic captured)
