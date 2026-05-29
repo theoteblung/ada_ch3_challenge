@@ -36,50 +36,48 @@ struct mainScreenView2: View {
     private let innerDiameter:  CGFloat = 110
 
     var body: some View {
-        if isPlaying {
-            ActiveView(onStop: {
-                isPlaying = false
-            })
-        } else {
-            ZStack {
-
-                // ── Background
-                background
-                    .ignoresSafeArea()
-
-                // ── Main layout
-                VStack(spacing: 0) {
-
-                    // Top bar
-                    topBar
-                        .padding(.horizontal, 20)
-                        .padding(.top, 4)
-
-                    Spacer()
-
-                    // Tap area + label
-                    tapCluster
-                        .padding(.bottom, 60)
-
-                    Spacer(minLength: 0)
-
-                    // App name footer
-                    Text("[App name]")
-                        .font(.system(size: 17, weight: .regular, design: .default))
-                        .foregroundColor(appNameColor)
-                        .padding(.bottom, 32)
-                }
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                handleTap()
-            }
-            .preferredColorScheme(isLightMode ? .light : .dark)
-            .onAppear { startPulse() }
-            .sheet(isPresented: $showInfoModal) {
-                InfoModalView()
+        ZStack {
+            if isPlaying {
+                ActiveView(onStop: {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        isPlaying = false
+                    }
+                })
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .move(edge: .bottom)),
+                    removal:   .opacity.combined(with: .move(edge: .bottom))
+                ))
+            } else {
+                mainContent
+                    .transition(.opacity)
             }
         }
+        .animation(.easeInOut(duration: 0.5), value: isPlaying)
+    }
+    
+    // MARK: - Main Content
+    private var mainContent: some View {
+        ZStack {
+            background.ignoresSafeArea()
+            VStack(spacing: 0) {
+                topBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
+                Spacer()
+                tapCluster
+                    .padding(.bottom, 60)
+                Spacer(minLength: 0)
+                Text("[App name]")
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(appNameColor)
+                    .padding(.bottom, 32)
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { handleTap() }
+        .preferredColorScheme(isLightMode ? .light : .dark)
+        .onAppear { startPulse() }
+        .sheet(isPresented: $showInfoModal) { InfoModalView() }
     }
     
     // MARK: - Top Bar
@@ -267,32 +265,34 @@ struct mainScreenView2: View {
 
     // MARK: - Tap Handler
     private func handleTap() {
-        isPlaying = true
+        withAnimation(.easeInOut(duration: 0.5)) {
+            isPlaying = true
+        }
     }
 }
 
 // MARK: - Color Hex Extension
-//extension Color {
-//    init(hex: String) {
-//        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-//        var int: UInt64 = 0
-//        Scanner(string: hex).scanHexInt64(&int)
-//        let r, g, b: UInt64
-//        switch hex.count {
-//        case 6:
-//            (r, g, b) = ((int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
-//        default:
-//            (r, g, b) = (1, 1, 0)
-//        }
-//        self.init(
-//            .sRGB,
-//            red:   Double(r) / 255,
-//            green: Double(g) / 255,
-//            blue:  Double(b) / 255,
-//            opacity: 1
-//        )
-//    }
-//}
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: UInt64
+        switch hex.count {
+        case 6:
+            (r, g, b) = ((int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
+        default:
+            (r, g, b) = (1, 1, 0)
+        }
+        self.init(
+            .sRGB,
+            red:   Double(r) / 255,
+            green: Double(g) / 255,
+            blue:  Double(b) / 255,
+            opacity: 1
+        )
+    }
+}
 
 // MARK: - Preview
 #Preview {
