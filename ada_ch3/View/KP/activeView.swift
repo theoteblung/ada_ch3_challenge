@@ -28,7 +28,7 @@ struct ActiveView: View {
                 // ── Bottom cluster
                 VStack(alignment: .leading, spacing: 20) {
 
-                    playingTitle
+//                    playingTitle
 
                     volumeRow
 
@@ -46,7 +46,7 @@ struct ActiveView: View {
         (
             Text("Playing ")
                 .font(.system(size: 32, weight: .bold))
-            + Text("White")
+            + Text("Brown")
                 .font(.system(size: 32, weight: .bold).italic())
             + Text(" Noise")
                 .font(.system(size: 32, weight: .bold))
@@ -74,10 +74,10 @@ struct ActiveView: View {
         } label: {
             Text("Stop")
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundColor(.black.opacity(0.9))
                 .frame(maxWidth: .infinity)
                 .frame(height: 52)
-                .background(Color(accentColor))
+                .background(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)

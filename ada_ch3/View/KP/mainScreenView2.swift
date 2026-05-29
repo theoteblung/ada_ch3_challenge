@@ -7,6 +7,35 @@
 
 import SwiftUI
 
+// MARK: - Gradient Text ViewModifier
+struct GradientTextModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.white.opacity(0.60),
+                        Color.white
+                    ]),
+                    startPoint: .topTrailing,
+                    endPoint: .bottomLeading
+                )
+            )
+            .mask(content)
+    }
+}
+
+extension View {
+    func gradientText() -> some View {
+        self.modifier(GradientTextModifier())
+    }
+}
+
+// MARK: - Tab Page
+enum TabPage {
+    case home, history
+}
+
 struct mainScreenView2: View {
 
     // MARK: - Animation State
@@ -15,71 +44,96 @@ struct mainScreenView2: View {
     @State private var pulse2Scale: CGFloat = 1.0
     @State private var pulse2Opacity: Double = 0.2
     @State private var innerScale: CGFloat = 1.0
+
+    // MARK: - App State
     @State private var selectedTimer: Int? = nil
     @State private var isLightMode: Bool = false
-    @State private var isTapped: Bool = false
     @State private var showInfoModal: Bool = false
     @State private var isPlaying: Bool = false
-
+    @State private var currentTab: TabPage = .home
+    @State private var dragOffset: CGFloat = 0
 
     // MARK: - Design Tokens
-    private let background      = Color(hex: "#1A1916")
-    private let innerCircle     = Color(hex: "#CAABA6")
-    private let middleCircle    = Color(hex: "#CAABA6")
-    private let outerCircle     = Color(hex: "#99645A")
-    private let accentText      = Color(hex: "#CAABA6")
-    private let appNameColor    = Color.white.opacity(0.20)
+    private let background    = Color(hex: "#1A1916")
+    private let innerCircle   = Color(hex: "#CAABA6")
+    private let middleCircle  = Color(hex: "#CAABA6")
+    private let outerCircle   = Color(hex: "#99645A")
+    private let appNameColor  = Color.white.opacity(0.20)
 
-    // Circle sizes
     private let outerDiameter:  CGFloat = 200
     private let middleDiameter: CGFloat = 150
     private let innerDiameter:  CGFloat = 110
 
     var body: some View {
         ZStack {
+            background.ignoresSafeArea()
+
             if isPlaying {
                 ActiveView(onStop: {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                    withAnimation(.easeInOut(duration: 0.8)) {
                         isPlaying = false
                     }
                 })
-                .transition(.asymmetric(
-                    insertion: .opacity.combined(with: .move(edge: .bottom)),
-                    removal:   .opacity.combined(with: .move(edge: .bottom))
-                ))
+                .transition(.opacity)
+
             } else {
-                mainContent
-                    .transition(.opacity)
+                VStack(spacing: 0) {
+                    topBar
+                        .padding(.horizontal, 20)
+                        .padding(.top, 4)
+
+                    GeometryReader { geo in
+                        HStack(spacing: 0) {
+                            homeContent
+                                .frame(width: geo.size.width)
+//                            HistoryView()
+//                                .frame(width: geo.size.width)
+                        }
+                        .offset(x: currentTab == .home
+                            ? dragOffset
+                            : -geo.size.width + dragOffset)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { value in
+                                    let translation = value.translation.width
+                                    if (currentTab == .home && translation > 0) ||
+                                       (currentTab == .history && translation < 0) {
+                                        dragOffset = translation * 0.15
+                                    } else {
+                                        dragOffset = translation
+                                    }
+                                }
+                                .onEnded { value in
+                                    let threshold: CGFloat = geo.size.width * 0.3
+                                    withAnimation(.spring(response: 0.4, dampingFraction: 0.85)) {
+                                        if value.translation.width < -threshold && currentTab == .home {
+                                            currentTab = .history
+                                        } else if value.translation.width > threshold && currentTab == .history {
+                                            currentTab = .home
+                                        }
+                                        dragOffset = 0
+                                    }
+                                }
+                        )
+                    }
+
+                    customTabBar
+                        .padding(.bottom, 20)
+
+                    Text("[App name]")
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundColor(appNameColor)
+                        .padding(.top, 6)
+                }
+                .transition(.opacity)
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: isPlaying)
-    }
-    
-    // MARK: - Main Content
-    private var mainContent: some View {
-        ZStack {
-            background.ignoresSafeArea()
-            VStack(spacing: 0) {
-                topBar
-                    .padding(.horizontal, 20)
-                    .padding(.top, 4)
-                Spacer()
-                tapCluster
-                    .padding(.bottom, 60)
-                Spacer(minLength: 0)
-                Text("[App name]")
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundColor(appNameColor)
-                    .padding(.bottom, 32)
-            }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture { handleTap() }
+        .animation(.easeInOut(duration: 0.8), value: isPlaying)
         .preferredColorScheme(isLightMode ? .light : .dark)
         .onAppear { startPulse() }
         .sheet(isPresented: $showInfoModal) { InfoModalView() }
     }
-    
+
     // MARK: - Top Bar
     private var topBar: some View {
         HStack {
@@ -97,86 +151,23 @@ struct mainScreenView2: View {
 
             Menu {
                 Menu {
-                    Button {
-                        selectedTimer = nil
-                    } label: {
-                        if selectedTimer == nil {
-                            Label("Off", systemImage: "checkmark")
-                        } else {
-                            Text("Off")
-                        }
+                    Button { selectedTimer = nil } label: {
+                        if selectedTimer == nil { Label("Off", systemImage: "checkmark") }
+                        else { Text("Off") }
                     }
-
                     Divider()
-
-                    Button {
-                        selectedTimer = 5
-                    } label: {
-                        if selectedTimer == 5 {
-                            Label("5 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("5 minutes")
+                    ForEach([5, 10, 15, 30, 45, 60], id: \.self) { mins in
+                        Button { selectedTimer = mins } label: {
+                            if selectedTimer == mins { Label("\(mins) minutes", systemImage: "checkmark") }
+                            else { Text("\(mins) minutes") }
                         }
                     }
-
-                    Button {
-                        selectedTimer = 10
-                    } label: {
-                        if selectedTimer == 10 {
-                            Label("10 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("10 minutes")
-                        }
-                    }
-
-                    Button {
-                        selectedTimer = 15
-                    } label: {
-                        if selectedTimer == 15 {
-                            Label("15 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("15 minutes")
-                        }
-                    }
-
-                    Button {
-                        selectedTimer = 30
-                    } label: {
-                        if selectedTimer == 30 {
-                            Label("30 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("30 minutes")
-                        }
-                    }
-
-                    Button {
-                        selectedTimer = 45
-                    } label: {
-                        if selectedTimer == 45 {
-                            Label("45 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("45 minutes")
-                        }
-                    }
-
-                    Button {
-                        selectedTimer = 60
-                    } label: {
-                        if selectedTimer == 60 {
-                            Label("60 minutes", systemImage: "checkmark")
-                        } else {
-                            Text("60 minutes")
-                        }
-                    }
-
                 } label: {
                     Label("Timer", systemImage: "timer")
                 }
-
                 Toggle(isOn: $isLightMode) {
                     Label("Light Mode", systemImage: "sun.max")
                 }
-
             } label: {
                 Image(systemName: "ellipsis.circle.fill")
                     .font(.system(size: 22, weight: .regular))
@@ -187,20 +178,32 @@ struct mainScreenView2: View {
         }
     }
 
+    // MARK: - Home Content
+    private var homeContent: some View {
+        ZStack {
+            VStack(spacing: 0) {
+                Spacer()
+                tapCluster
+                Spacer()
+            }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard currentTab == .home else { return }
+            handleTap()
+        }
+    }
+
     // MARK: - Tap Cluster
     private var tapCluster: some View {
         HStack(alignment: .center, spacing: 24) {
-
-            // Pulsing circles + hand icon
             ZStack {
-                // Outer pulse ring
                 Circle()
                     .fill(outerCircle.opacity(0.50))
                     .frame(width: outerDiameter, height: outerDiameter)
                     .scaleEffect(pulse2Scale)
                     .opacity(pulse2Opacity)
 
-                // Middle pulse ring
                 Circle()
                     .fill(middleCircle.opacity(0.50))
                     .frame(width: middleDiameter, height: middleDiameter)
@@ -209,63 +212,79 @@ struct mainScreenView2: View {
                     .shadow(color: Color.white.opacity(0.08), radius: 8, x: 0, y: 2)
                     .shadow(color: innerCircle.opacity(0.35), radius: 24, x: 0, y: 10)
 
-                // Inner static circle
                 Circle()
                     .fill(innerCircle.opacity(0.70))
                     .frame(width: innerDiameter, height: innerDiameter)
                     .scaleEffect(innerScale)
                     .shadow(color: Color.white.opacity(0.08), radius: 8, x: 0, y: 2)
                     .shadow(color: innerCircle.opacity(0.35), radius: 24, x: 0, y: 10)
-                
-                // Hand icon
+
+
                 Image(systemName: "hand.tap.fill")
-                    .font(.system(size: 100, weight: .regular))
+                    .font(.system(size: 120, weight: .regular))
                     .foregroundColor(.white)
-                    .offset(x: 40, y: 40)
+                    .offset(x: 40, y: 50)
+
+                // Put text last so it draws above everything in this ZStack
+                Text("Tap to start")
+                    .font(.system(size: 32, weight: .bold))
+                    .gradientText()
+                    .lineLimit(1)
+                    .fixedSize()
+                    .offset(x: outerDiameter / 2 + 60)
             }
             .frame(width: outerDiameter, height: outerDiameter)
 
-            // "Tap to start" label
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Tap to")
-                    .font(.system(size: 20, weight: .regular, design: .default))
-                    .foregroundColor(accentText)
-                Text("start")
-                    .font(.system(size: 32, weight: .bold, design: .default))
-                    .foregroundColor(accentText)
-            }
+            // Remove the separate Text from the HStack
+            // (since it's now layered inside the ZStack)
+            Spacer(minLength: 0)
         }
         .padding(.leading, 28)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .offset(y: 150)
     }
-        
+
+    // MARK: - Custom Tab Bar
+    private var customTabBar: some View {
+        HStack(spacing: 10) {
+            if currentTab == .home {
+                Image(systemName: "house.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.white)
+                Circle()
+                    .fill(Color.white.opacity(0.40))
+                    .frame(width: 6, height: 6)
+                
+            } else {
+                Circle()
+                    .fill(Color.white.opacity(0.40))
+                    .frame(width: 6, height: 6)
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.white)
+                
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: currentTab)
+    }
 
     // MARK: - Pulse Animation
     private func startPulse() {
         let pulseAnimation = Animation
             .easeInOut(duration: 1.6)
-                .repeatForever(autoreverses: true)
+            .repeatForever(autoreverses: true)
 
-            withAnimation(pulseAnimation) {
-
-                // Inner
-                innerScale = 1.05
-
-                // Middle
-                pulse1Scale = 1.12
-                pulse1Opacity = 0.30
-
-                // Outer
-                pulse2Scale = 1.20
-                pulse2Opacity = 0.1
-
-            }
+        withAnimation(pulseAnimation) {
+            innerScale    = 1.05
+            pulse1Scale   = 1.12
+            pulse1Opacity = 0.30
+            pulse2Scale   = 1.20
+            pulse2Opacity = 0.1
+        }
     }
 
     // MARK: - Tap Handler
     private func handleTap() {
-        withAnimation(.easeInOut(duration: 0.5)) {
+        withAnimation(.easeInOut(duration: 0.8)) {
             isPlaying = true
         }
     }
