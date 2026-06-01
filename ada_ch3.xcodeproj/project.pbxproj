@@ -249,6 +249,7 @@
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need permission to analyze your usage";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to optimize your surrounding soundscape";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires microphone access to record audio notes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -286,6 +287,7 @@
 				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need permission to analyze your usage";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We need your location to optimize your surrounding soundscape";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires microphone access to record audio notes.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

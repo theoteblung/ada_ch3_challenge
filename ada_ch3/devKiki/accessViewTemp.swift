@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AccessView: View {
+struct AccessViewTemp: View {
     // Instantiate managers here
     @StateObject private var audioManager = AudioManager()
     @StateObject private var locationManager = LocationManager()
@@ -15,8 +15,6 @@ struct AccessView: View {
     // State tracks to safely navigate away or change button states later
     @State private var micGranted = false
     @State private var locationGranted = false
-    
-    @EnvironmentObject var onboardingManager: OnboardingManager
     
     var body: some View {
         ZStack {
@@ -57,6 +55,7 @@ struct AccessView: View {
             .offset(x: -30, y: -50)
             
             VStack (alignment: .trailing, spacing: 15) {
+                // Update Button Action to handle both systems sequentially
                 Button(action: {
                     handlePermissionsFlow()
                 }) {
@@ -64,12 +63,11 @@ struct AccessView: View {
                         .padding(5)
                 }
                 .tint(Color.brown.opacity(0.9))
-                .buttonStyle(.borderedProminent)
-                
+                .buttonStyle(.borderedProminent) // Un-commented to give button visual presence
+                    
                 Button(action: {
-                    withAnimation {
-                        onboardingManager.isCompleted = true
-                    }
+                    // Logic to skip or dismiss onboarding
+                    print("User bypassed permissions for now")
                 }) {
                     Text("Not now")
                 }
@@ -89,12 +87,6 @@ struct AccessView: View {
             locationManager.requestLocationAccess { locationAllowed in
                 self.locationGranted = locationAllowed
                 print("Location response: \(locationAllowed)")
-                
-                if self.micGranted && self.locationGranted {
-                    withAnimation {
-                        onboardingManager.isCompleted = true
-                    }
-                }
             }
         }
     }
@@ -102,5 +94,5 @@ struct AccessView: View {
     
 
 #Preview {
-    AccessView()
+    AccessViewTemp()
 }

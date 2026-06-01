@@ -245,5 +245,13 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
             self.isPlaying = false
         }
     }
+    
+    func requestMicrophonePermission(completion: @escaping (Bool) -> Void) {
+        AVAudioApplication.requestRecordPermission { allowed in
+            DispatchQueue.main.async {
+                completion(allowed)
+            }
+        }
+    }
 
 }
