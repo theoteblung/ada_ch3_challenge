@@ -17,6 +17,7 @@ struct ActiveView: View {
 
     private let accentColor = Color(hex: "#CAABA6")
     private let background  = Color(hex: "#1A1916")
+    
 
     var body: some View {
         ZStack {

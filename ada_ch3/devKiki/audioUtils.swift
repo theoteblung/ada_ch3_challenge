@@ -33,6 +33,13 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     private var soundPlayerLists: [String: AVAudioPlayer] = [:]   // keyed by file name
     private let soundFadeDuration = 1.0
     
+    //theo breath player
+    @Published private(set) var breathPlaying: Sound?
+    private var breathPlayer: AVAudioPlayer?
+    @Published var isBreathPlaying = false
+    @Published var breathIndex = 0
+    @Published var breathVolume: Float = 0.5
+    
     override init() {
         super.init()
         setupAudioSession()
@@ -178,13 +185,15 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
             print("Failed to play asset file: \(error.localizedDescription)")
         }
     }
-    private func dynamicNoisePlayer(for sound: Sound) -> AVAudioPlayer? {
+    private func dynamicNoisePlayer(for sound: Sound, isLooping: Bool = true) -> AVAudioPlayer? {
         if let soundPlayerList = soundPlayerLists[sound.name] { return soundPlayerList }
         guard let url = Bundle.main.url(forResource: sound.name, withExtension: sound.ext) else {
             print("⚠️ \(sound.name).\(sound.ext) not in bundle"); return nil
         }
         let p = try? AVAudioPlayer(contentsOf: url)
-        p?.numberOfLoops = -1
+        if (isLooping) {
+            p?.numberOfLoops = -1
+        }
         p?.prepareToPlay()
         soundPlayerLists[sound.name] = p
         return p
@@ -209,10 +218,50 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         self.isPlaying = true
     }
     func stopNoiseDynamic() {
-        soundPlayer?.setVolume(0, fadeDuration: soundFadeDuration)
+        soundPlayer?.setVolume(0, fadeDuration: 0.1)
         soundPlayer = nil
         soundPlaying = nil
         self.isPlaying = false
+    }
+    func setBreathVolume(volume: Float = 1.0) {
+        breathVolume = volume
+    }
+    func playBreathDynamic() {
+        
+        var sound: Sound = .breathInSound
+        if (breathIndex == 0) {
+            sound = .breathInSound
+        }else if (breathIndex == 2) {
+            sound = .breathOutSound
+        }else {
+            sound = .breathHoldSound
+        }
+        
+        guard sound != breathPlaying else { return }       // already on it
+        guard let nextSoundPlayer = dynamicNoisePlayer(for: sound, isLooping: false) else { return }
+        
+        let currentSoundPlayer = breathPlayer
+
+        // fade in the new one -> transition to next sound
+        nextSoundPlayer.volume = 0
+        nextSoundPlayer.currentTime = 0
+        nextSoundPlayer.play()
+        nextSoundPlayer.setVolume(breathVolume, fadeDuration: 0.1)
+
+        // fade out the old one
+        currentSoundPlayer?.setVolume(0, fadeDuration: 0.1)
+
+        breathPlayer = nextSoundPlayer
+        breathPlaying = sound
+        
+        self.isBreathPlaying = true
+        
+    }
+    func stopBreathDynamic() {
+        breathPlayer?.setVolume(0, fadeDuration: 0.1)
+        breathPlayer = nil
+        breathPlaying = nil
+        self.isBreathPlaying = false
     }
     
     // MARK: - Playback Type 2: Debug Audio (Plays what mic captured)

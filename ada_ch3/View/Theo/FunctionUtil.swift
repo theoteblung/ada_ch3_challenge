@@ -11,7 +11,6 @@ import AVFoundation
 
 struct FunctionUtil: View {
     @StateObject private var audioManager = AudioManager()
-    
     var themeColor: Color {
         if audioManager.recommendedNoise.contains("White") { return .gray }
         if audioManager.recommendedNoise.contains("Pink") { return .pink }
@@ -19,6 +18,7 @@ struct FunctionUtil: View {
         if audioManager.recommendedNoise.contains("Brown") { return .brown }
         return .blue
     }
+    @State private var isLoopingBreathing: Bool = false
     
     var body: some View {
         ScrollView { // Switched to ScrollView to prevent screen cramping
@@ -85,10 +85,84 @@ struct FunctionUtil: View {
                             .cornerRadius(14)
                     }
                     Button(action: {
-                        if audioManager.isPlaying {
-                            audioManager.stopNoiseDynamic()
+                        if audioManager.isBreathPlaying {
+                            audioManager.stopBreathDynamic()
+                            isLoopingBreathing = false
                         } else {
+                            audioManager.breathIndex = 0
+                            audioManager.playBreathDynamic()
+                            isLoopingBreathing = true
+                            //testing only
+                            Task {
+                                try await Task.sleep(for: .seconds(2))
+                                if (isLoopingBreathing) {
+                                    audioManager.breathIndex += 1
+                                    audioManager.playBreathDynamic()
+                                    if (audioManager.breathIndex > 3) {
+                                        audioManager.breathIndex = 0
+                                    }
+                                }
+                                
+                                
+                            }
+                            Task {
+                                try await Task.sleep(for: .seconds(4))
+                                if (isLoopingBreathing) {
+                                    audioManager.breathIndex += 1
+                                    audioManager.playBreathDynamic()
+                                    if (audioManager.breathIndex > 3) {
+                                        audioManager.breathIndex = 0
+                                    }
+                                }
+                                
+                            }
+                            Task {
+                                try await Task.sleep(for: .seconds(6))
+                                if (isLoopingBreathing) {
+                                    audioManager.breathIndex += 1
+                                    audioManager.playBreathDynamic()
+                                    if (audioManager.breathIndex > 3) {
+                                        audioManager.breathIndex = 0
+                                    }
+                                }
+                                
+                            }
+                            Task {
+                                try await Task.sleep(for: .seconds(8))
+                                if (isLoopingBreathing) {
+                                    audioManager.breathIndex += 1
+                                    audioManager.playBreathDynamic()
+                                    if (audioManager.breathIndex > 3) {
+                                        audioManager.breathIndex = 0
+                                    }
+                                }
+                                
+                            }
+                            Task {
+                                try await Task.sleep(for: .seconds(10))
+                                if (isLoopingBreathing) {
+                                    audioManager.breathIndex += 1
+                                    audioManager.playBreathDynamic()
+                                    if (audioManager.breathIndex > 3) {
+                                        audioManager.breathIndex = 0
+                                    }
+                                }
+                                
+                            }
+                            
                         }
+                        
+                    }) {
+                        Text(audioManager.isBreathPlaying ? "Stop Breathing" : "Play Breathe Sound")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .cornerRadius(14)
+                    }
+                    Button(action: {
+                        audioManager.stopNoiseDynamic()
                     }) {
                         Text(audioManager.isPlaying ? "Stop" : "No Sound is playing")
                             .font(.headline)
