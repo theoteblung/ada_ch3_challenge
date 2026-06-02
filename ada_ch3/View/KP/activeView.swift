@@ -11,7 +11,9 @@ import AVKit
 
 struct ActiveView: View {
     var onStop: () -> Void
-
+    
+    @StateObject private var audioManager = AudioManager()
+    
     // System volume binding
     @State private var volume: Float = AVAudioSession.sharedInstance().outputVolume
 
@@ -40,6 +42,9 @@ struct ActiveView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            audioManager.playNoiseDynamic(.pinkNoise, volume: 0.5)
+        }
     }
 
     // MARK: - Playing Title
@@ -71,6 +76,9 @@ struct ActiveView: View {
     // MARK: - Stop Button
     private var stopButton: some View {
         Button {
+            if audioManager.isPlaying {
+                audioManager.stopNoiseDynamic()
+            }
             onStop()
         } label: {
             Text("Stop")
