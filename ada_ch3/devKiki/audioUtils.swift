@@ -52,6 +52,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         AVAudioApplication.requestRecordPermission { [weak self] allowed in
             DispatchQueue.main.async {
                 guard allowed else { return }
+                print("Recording Start")
                 self?.beginRecordingProcess()
             }
         }
@@ -70,6 +71,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         ]
         
         do {
+            print("Recording Process Start")
+            
             audioRecorder = try AVAudioRecorder(url: fileURL, settings: settings)
             audioRecorder?.delegate = self
             audioRecorder?.isMeteringEnabled = true
@@ -98,6 +101,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     private func startAnalyzing() {
         analysisTimer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { [weak self] _ in
             guard let self = self, let recorder = self.audioRecorder, recorder.isRecording else { return }
+            
+            print("Analyzing Process Start")
             
             recorder.updateMeters()
             let currentPower = recorder.averagePower(forChannel: 0)
