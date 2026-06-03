@@ -62,6 +62,9 @@ struct ActiveView: View {
     private let borderColor = Color(hex: "#636261")
     private let background  = Color(hex: "#1A1916")
     
+    // theo add audio player
+    @StateObject private var audioManager = AudioManager()
+    
 
     var body: some View {
         ZStack {
@@ -96,6 +99,7 @@ struct ActiveView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
+            audioManager.breathIndex = 0
             startSession()
         }
         .onDisappear {
@@ -179,6 +183,11 @@ struct ActiveView: View {
     }
 
     private func runPhase() {
+//        audioManager.playBreathDynamic()
+        audioManager.breathIndex += 1
+        if (audioManager.breathIndex > 3) {
+            audioManager.breathIndex = 0
+        }
         // Fade label in
         withAnimation(.easeInOut(duration: 0.6)) {
             labelOpacity = 1.0

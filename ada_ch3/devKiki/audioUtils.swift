@@ -229,7 +229,8 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         self.isPlaying = false
     }
     func setBreathVolume(volume: Float = 1.0) {
-        breathVolume = volume
+        breathPlayer?.volume = volume
+//        breathVolume = volume
     }
     func playBreathDynamic() {
         

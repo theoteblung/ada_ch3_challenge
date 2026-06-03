@@ -11,3 +11,18 @@ import Combine
 class OnboardingManager: ObservableObject {
     @Published var isCompleted = false
 }
+class VolumeManager: ObservableObject {
+    @Published var mediaVol: Float = 50.0
+    @Published var mediaPreMute: Float = 50.0
+    @Published var mediaMute: Bool = false
+    
+    @Published var voiceVol: Float = 50.0
+    @Published var voicePreMute: Float = 50.0
+    @Published var voiceMute: Bool = false
+    
+    @Published var noiseVol: Float = 50.0
+    @Published var noisePreMute: Float = 50.0
+    @Published var noiseMute: Bool = false
+}
+
+

@@ -42,10 +42,11 @@ struct VolumeSheet: View {
             if isExpanded {
                 VStack(spacing: 16) {
                     // Placeholder — will be filled with active volume controls later
-                    Text("Volume controls will go here")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white.opacity(0.40))
-                        .padding(.vertical, 20)
+//                    Text("Volume controls will go here")
+//                        .font(.system(size: 14))
+//                        .foregroundColor(.white.opacity(0.40))
+//                        .padding(.vertical, 20)
+                    VolumeSettingsViewV2()
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 24)
