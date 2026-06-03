@@ -10,6 +10,8 @@ import Foundation
 
 struct FirstOnboarding: View {
     
+    @EnvironmentObject var onboardingManager: OnboardingManager
+    
     @State var animate: Bool = false
     @State var showNext: Bool = false
     @State var textStep: Int = 0
@@ -102,9 +104,6 @@ struct FirstOnboarding: View {
                         .offset(x: 150, y: 250)
                         .frame(width: 30, height: 30)
                 }
-                    else {
-                        AccessView()
-                    }
             }
 
             
@@ -114,6 +113,9 @@ struct FirstOnboarding: View {
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.5)){
                 textStep += 1
+                if(textStep == 2){
+                    onboardingManager.isCompleted = true
+                }
             }
         }
     }
