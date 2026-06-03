@@ -89,12 +89,12 @@ struct mainScreenView: View {
                         Text("Tap to")
                             .font(.system(size: 40, weight: .light))                        .lineLimit(1)
                             .fixedSize()
-                            .offset(x: -100)
+                            .offset(x: -120)
                         
                         Text("start")
                             .font(.system(size: 40, weight: .bold))                        .lineLimit(1)
                             .fixedSize()
-                            .offset(x: -90)
+                            .offset(x: -110)
                     }
 
                     ZStack {
@@ -114,6 +114,7 @@ struct mainScreenView: View {
                             .frame(width: outerDiameter, height: outerDiameter)
                             .scaleEffect(pulse2Scale)
                             .opacity(pulse2Opacity)
+                            .offset(x:-15)
 
                         // Inner glow — #CAABA6 radial
                         Circle()
@@ -130,12 +131,13 @@ struct mainScreenView: View {
                             )
                             .frame(width: innerDiameter, height: innerDiameter)
                             .scaleEffect(innerScale)
+                            .offset(x: -15)
 
                         // Hand icon
                         Image(systemName: "hand.tap.fill")
                             .font(.system(size: 100, weight: .regular))
                             .foregroundColor(.white)
-                            .offset(x: 30, y: 40)
+                            .offset(x: 15, y: 40)
                     }
                     .frame(width: outerDiameter, height: outerDiameter)
                     .offset(x: 50)
@@ -174,25 +176,25 @@ struct mainScreenView: View {
             } label: {
                 Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
                     .font(.system(size: 26, weight: .regular))
-                    .foregroundColor(isDarkMode ? .purple : .orange)
+                    .foregroundColor(isDarkMode ? .gray : .yellow)
                     .padding(8)
-                    .background(
-                        Circle()
-                            .fill(isDarkMode ? Color.gray.opacity(0.2) : Color.gray.opacity(0.2))
-                    )
+//                    .background(
+//                        Circle()
+//                            .fill(isDarkMode ? Color.gray.opacity(0.2) : Color.gray.opacity(0.2))
+//                    )
             }
             
             //setting button
-//            NavigationLink {
-//                SettingsView()
-//                    .environmentObject(settings)
-//            } label: {
-//                Image(systemName: "gearshape.fill")
-//                    .font(.system(size: 22, weight: .regular))
-//                    .foregroundColor(.white.opacity(0.60))
-//                    .padding(8)
-//                    .contentShape(Rectangle())
-//            }
+            NavigationLink {
+                SettingsView()
+                    .environmentObject(settings)
+            } label: {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 26, weight: .regular))
+                    .foregroundColor(.white.opacity(0.60))
+                    .padding(8)
+                    .contentShape(Rectangle())
+            }
         }
     }
 
