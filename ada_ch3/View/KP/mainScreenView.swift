@@ -56,7 +56,8 @@ enum NoiseSelection: String, CaseIterable, Identifiable {
 }
 
 struct mainScreenView: View {
-
+    @AppStorage("isDarkMode") private var isDarkMode = true
+    
     // MARK: - Animation State
     @State private var pulse1Scale: CGFloat = 1.0
     @State private var pulse1Opacity: Double = 0.5
@@ -81,8 +82,6 @@ struct mainScreenView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                background.ignoresSafeArea()
-
                 Group {
                     if isPlaying {
                         ActiveView(onStop: {
@@ -103,7 +102,8 @@ struct mainScreenView: View {
                     .ignoresSafeArea(edges: .bottom)
             }
             .animation(.easeInOut(duration: 0.8), value: isPlaying)
-            .preferredColorScheme(settings.isLightMode ? .light : .dark)
+            .preferredColorScheme(isDarkMode ? .dark : .light)
+            .background(Color("ColorBG").ignoresSafeArea())
             .onAppear { startPulse() }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -123,12 +123,17 @@ struct mainScreenView: View {
 
                 // Tap area horizontally aligned: text left, circles right
                 ZStack {
-                    Text("Tap to start")
-                        .font(.system(size: 40, weight: .bold))
-                        .gradientText()
-                        .lineLimit(1)
-                        .fixedSize()
-                        .offset(x: -100)
+                    VStack{
+                        Text("Tap to")
+                            .font(.system(size: 40, weight: .light))                        .lineLimit(1)
+                            .fixedSize()
+                            .offset(x: -100)
+                        
+                        Text("start")
+                            .font(.system(size: 40, weight: .bold))                        .lineLimit(1)
+                            .fixedSize()
+                            .offset(x: -90)
+                    }
 
                     ZStack {
                         // Outer glow — #99645A radial
@@ -205,24 +210,41 @@ struct mainScreenView: View {
                     .environmentObject(settings)
             } label: {
                 Image(systemName: "info.circle.fill")
-                    .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(.white.opacity(0.60))
+                    .font(.system(size: 26, weight: .regular))
+                    .foregroundColor(Color("IconBG"))
                     .padding(8)
                     .contentShape(Rectangle())
             }
 
             Spacer()
-
-            NavigationLink {
-                SettingsView()
-                    .environmentObject(settings)
+            
+            //darkmode button
+            Button {
+                withAnimation(.easeInOut) {
+                    isDarkMode.toggle()
+                }
             } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 22, weight: .regular))
-                    .foregroundColor(.white.opacity(0.60))
+                Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
+                    .font(.system(size: 26, weight: .regular))
+                    .foregroundColor(isDarkMode ? .purple : .orange)
                     .padding(8)
-                    .contentShape(Rectangle())
+                    .background(
+                        Circle()
+                            .fill(isDarkMode ? Color.gray.opacity(0.2) : Color.gray.opacity(0.2))
+                    )
             }
+            
+            //setting button
+//            NavigationLink {
+//                SettingsView()
+//                    .environmentObject(settings)
+//            } label: {
+//                Image(systemName: "gearshape.fill")
+//                    .font(.system(size: 22, weight: .regular))
+//                    .foregroundColor(.white.opacity(0.60))
+//                    .padding(8)
+//                    .contentShape(Rectangle())
+//            }
         }
     }
 
