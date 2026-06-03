@@ -6,11 +6,13 @@
 //
 
 import SwiftUI
+import Foundation
 
 struct FirstOnboarding: View {
     
     @State var animate: Bool = false
     @State var showNext: Bool = false
+    @State var textStep: Int = 0
     
     var body: some View {
         
@@ -23,7 +25,7 @@ struct FirstOnboarding: View {
             Section {
                 Image ("Oval 2")
                     .offset(x: -80, y: 170)
-                    .opacity(animate ? 0.1 : 1.0)
+                    .opacity(animate ? 0.0 : 1.0)
                     .animation(
                         .easeInOut(duration: 3.5)
                         .repeatForever(autoreverses: true), value: animate
@@ -58,42 +60,62 @@ struct FirstOnboarding: View {
             
 
             VStack {
-                VStack (alignment: .leading, spacing: 20){
-                    Text("Find your quiet.")
+                if textStep < 2 {
+                    if textStep == 0 {
+                    VStack (alignment: .leading, spacing: 20){
+                        Text("Find your quiet.")
+                        
+                            .font(.title)
+                            .foregroundStyle(.white)
+                            .fontWeight(.bold)
+                            .fontDesign(.rounded)
+                        
+                        
+                        Text("We listen to your environment to instantly **find the perfect noise** to help you reset.")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .font(.title3)
+                        }
+                        .frame(width: 280)
+                        .offset(x: -30, y: 230)
+                }else {
+                    VStack (alignment: .leading, spacing: 20){
+                        Text("Block your chaos.")
+                        
+                            .font(.title)
+                            .foregroundStyle(.white)
+                            .fontWeight(.bold)
+                            .fontDesign(.rounded)
+                        
+                        Text("**One click** reads your environment and builds a custom **audio shield.**")
+                            .foregroundStyle(.white)
+                            .fontDesign(.rounded)
+                            .font(.title3)
+                    }
+                    .frame(width: 280)
+                    .offset(x: -55, y: 230)
+                    }
                     
-                        .font(.title)
-                        .foregroundStyle(.white)
-                        .fontWeight(.bold)
-                        .fontDesign(.rounded)
-                    
-                    Text("We listen to your environment to instantly **find the perfect noise** to help you reset.")
-                        .foregroundStyle(.white)
-                        .fontDesign(.rounded)
-                        .font(.title3)
+                    Image(systemName: "arrow.right")
+                        .resizable()
+                        .foregroundStyle(Color.white.opacity(0.5))
+                        .offset(x: 150, y: 250)
+                        .frame(width: 30, height: 30)
                 }
+                    else {
+                        AccessView()
+                    }
             }
-            .frame(width: 280)
-            .offset(x: -30, y: 200)
+
             
-            Image(systemName: "arrow.right")
-                .resizable()
-                .foregroundStyle(Color.white.opacity(0.5))
-                .offset(x: 150, y: 300)
-                .frame(width: 30, height: 30)
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onTapGesture {
-            showNext.toggle()
+            withAnimation(.easeInOut(duration: 0.5)){
+                textStep += 1
             }
-        .fullScreenCover(isPresented: $showNext) {
-            SecondOnboarding()
-            }
-        
-        .transaction { transaction in
-                    if showNext {
-                        transaction.disablesAnimations = true
-                    }
-                }
+        }
     }
 }
 
