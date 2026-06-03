@@ -58,6 +58,7 @@ enum NoiseSelection: String, CaseIterable, Identifiable {
 struct mainScreenView: View {
     @AppStorage("isDarkMode") private var isDarkMode = true
     @EnvironmentObject var volumeManager: VolumeManager
+    @EnvironmentObject var audioManager: AudioManager
     
     // MARK: - Animation State
     @State private var pulse1Scale: CGFloat = 1.0
@@ -90,6 +91,8 @@ struct mainScreenView: View {
                                 isPlaying = false
                             }
                         })
+                        .environmentObject(volumeManager)
+                        .environmentObject(audioManager)
                         .transition(.opacity)
                         .environmentObject(settings)
                     } else {
@@ -106,7 +109,10 @@ struct mainScreenView: View {
             .animation(.easeInOut(duration: 0.8), value: isPlaying)
             .preferredColorScheme(isDarkMode ? .dark : .light)
             .background(Color("ColorBG").ignoresSafeArea())
-            .onAppear { startPulse() }
+            .onAppear {
+                audioManager.playNoiseDynamic(.pinkNoise, volume: 0.5)
+                startPulse()
+            }
             .toolbar(.hidden, for: .navigationBar)
         }
         .environmentObject(settings)
@@ -261,6 +267,7 @@ struct mainScreenView: View {
             pulse2Scale   = 1.25
             pulse2Opacity = 0.55
         }
+        
     }
 
     // MARK: - Tap Handler
@@ -296,5 +303,5 @@ extension Color {
 
 // MARK: - Preview
 #Preview {
-    mainScreenView().environmentObject(VolumeManager())
+    mainScreenView().environmentObject(VolumeManager()).environmentObject(AudioManager())
 }

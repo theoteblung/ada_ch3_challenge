@@ -63,8 +63,8 @@ struct ActiveView: View {
     private let background  = Color(hex: "#1A1916")
     
     // theo add audio player
-    @StateObject private var audioManager = AudioManager()
-    
+    @EnvironmentObject var volumeManager: VolumeManager
+    @EnvironmentObject var audioManager: AudioManager
 
     var body: some View {
         ZStack {
@@ -183,7 +183,7 @@ struct ActiveView: View {
     }
 
     private func runPhase() {
-//        audioManager.playBreathDynamic()
+        audioManager.playBreathDynamic()
         audioManager.breathIndex += 1
         if (audioManager.breathIndex > 3) {
             audioManager.breathIndex = 0
