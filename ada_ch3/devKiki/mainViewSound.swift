@@ -12,7 +12,7 @@ struct MainViewSound: View {
     
     var body: some View {
         if onboardingManager.isCompleted {
-            mainScreenView2()
+            mainScreenView()
         } else {
             NavigationStack {
                 FirstOnboarding()
