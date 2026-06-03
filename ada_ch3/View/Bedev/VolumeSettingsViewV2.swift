@@ -114,5 +114,5 @@ struct VolumeSettingsViewV2: View {
 }
 
 #Preview {
-    VolumeSettingsViewV2()
+    VolumeSettingsViewV2().environmentObject(VolumeManager())
 }

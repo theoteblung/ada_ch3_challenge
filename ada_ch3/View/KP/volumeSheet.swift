@@ -9,6 +9,7 @@ import SwiftUI
 
 struct VolumeSheet: View {
     @State private var isExpanded: Bool = false
+    @EnvironmentObject var volumeManager: VolumeManager
 
     private let background     = Color(hex: "#1A1916")
     private let borderColor    = Color(hex: "#979797").opacity(0.20)
@@ -24,13 +25,12 @@ struct VolumeSheet: View {
                 HStack {
                     Text("Volume")
                         .font(.system(size: 21, weight: .bold))
-                        .gradientText()
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
                         .font(.system(size: 20, weight: .regular))
-                        .foregroundColor(.white.opacity(0.70))
+                        .foregroundColor(Color("IconBG"))
                 }
                 .padding(.horizontal, 24)
                 .padding(.vertical, 22)
@@ -46,7 +46,7 @@ struct VolumeSheet: View {
 //                        .font(.system(size: 14))
 //                        .foregroundColor(.white.opacity(0.40))
 //                        .padding(.vertical, 20)
-                    VolumeSettingsViewV2()
+                    VolumeSettingsViewV2().environmentObject(volumeManager)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 24)
@@ -54,7 +54,7 @@ struct VolumeSheet: View {
                 .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
-        .background(background)
+        .background(Color("ColorBG"))
 //        .padding(.bottom, isExpanded ? 0 : 16)
         .clipShape(
             UnevenRoundedRectangle(
@@ -106,7 +106,7 @@ struct VolumeSheetTopBorder: Shape {
         Color(hex: "#1A1916").ignoresSafeArea()
         VStack {
             Spacer()
-            VolumeSheet()
+            VolumeSheet().environmentObject(VolumeManager())
         }
     }
 }

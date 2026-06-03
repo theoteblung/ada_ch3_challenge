@@ -57,6 +57,7 @@ enum NoiseSelection: String, CaseIterable, Identifiable {
 
 struct mainScreenView: View {
     @AppStorage("isDarkMode") private var isDarkMode = true
+    @EnvironmentObject var volumeManager: VolumeManager
     
     // MARK: - Animation State
     @State private var pulse1Scale: CGFloat = 1.0
@@ -100,6 +101,7 @@ struct mainScreenView: View {
 
                 VolumeSheet()
                     .ignoresSafeArea(edges: .bottom)
+                    .environmentObject(volumeManager)
             }
             .animation(.easeInOut(duration: 0.8), value: isPlaying)
             .preferredColorScheme(isDarkMode ? .dark : .light)
@@ -294,5 +296,5 @@ extension Color {
 
 // MARK: - Preview
 #Preview {
-    mainScreenView()
+    mainScreenView().environmentObject(VolumeManager())
 }
