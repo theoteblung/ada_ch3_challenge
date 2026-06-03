@@ -32,6 +32,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     private var soundPlayer: AVAudioPlayer?
     private var soundPlayerLists: [String: AVAudioPlayer] = [:]   // keyed by file name
     private let soundFadeDuration = 1.0
+    @Published var soundVolume: Float = 0.5
     
     //theo breath player
     @Published private(set) var breathPlaying: Sound?
@@ -213,7 +214,7 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         nextSoundPlayer.volume = 0
         nextSoundPlayer.currentTime = 0
         nextSoundPlayer.play()
-        nextSoundPlayer.setVolume(volume, fadeDuration: soundFadeDuration/2)
+        nextSoundPlayer.setVolume(soundVolume, fadeDuration: soundFadeDuration/2)
 
         // fade out the old one
         currentSoundPlayer?.setVolume(0, fadeDuration: soundFadeDuration)
@@ -228,9 +229,13 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         soundPlaying = nil
         self.isPlaying = false
     }
+    func setSoundVolume(volume: Float = 1.0) {
+        soundPlayer?.volume = volume
+        soundVolume = volume
+    }
     func setBreathVolume(volume: Float = 1.0) {
         breathPlayer?.volume = volume
-//        breathVolume = volume
+        breathVolume = volume
     }
     func playBreathDynamic() {
         

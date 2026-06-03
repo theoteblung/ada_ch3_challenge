@@ -269,4 +269,5 @@ struct ActiveView: View {
 #Preview {
     ActiveView(onStop: {})
         .environmentObject(AppSettings())
+        .environmentObject(VolumeManager()).environmentObject(AudioManager())
 }

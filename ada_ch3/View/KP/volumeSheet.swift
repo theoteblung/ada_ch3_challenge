@@ -10,6 +10,7 @@ import SwiftUI
 struct VolumeSheet: View {
     @State private var isExpanded: Bool = false
     @EnvironmentObject var volumeManager: VolumeManager
+    @EnvironmentObject var audioManager: AudioManager
 
     private let background     = Color(hex: "#1A1916")
     private let borderColor    = Color(hex: "#979797").opacity(0.20)
@@ -47,6 +48,7 @@ struct VolumeSheet: View {
 //                        .foregroundColor(.white.opacity(0.40))
 //                        .padding(.vertical, 20)
                     VolumeSettingsViewV2().environmentObject(volumeManager)
+                        .environmentObject(audioManager)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 24)
@@ -106,7 +108,7 @@ struct VolumeSheetTopBorder: Shape {
         Color(hex: "#1A1916").ignoresSafeArea()
         VStack {
             Spacer()
-            VolumeSheet().environmentObject(VolumeManager())
+            VolumeSheet().environmentObject(VolumeManager()).environmentObject(AudioManager())
         }
     }
 }

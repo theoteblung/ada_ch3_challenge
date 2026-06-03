@@ -105,6 +105,7 @@ struct mainScreenView: View {
                 VolumeSheet()
                     .ignoresSafeArea(edges: .bottom)
                     .environmentObject(volumeManager)
+                    .environmentObject(audioManager)
             }
             .animation(.easeInOut(duration: 0.8), value: isPlaying)
             .preferredColorScheme(isDarkMode ? .dark : .light)

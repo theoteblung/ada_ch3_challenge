@@ -12,6 +12,7 @@ struct VolumeSettingsViewV2: View {
     // volumemanager.mediavol ==>example
     
     @EnvironmentObject var volumeManager: VolumeManager
+    @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
         
@@ -43,6 +44,13 @@ struct VolumeSettingsViewV2: View {
                 
                 Slider(value: $volumeManager.mediaVol, in: 0...100)
                     .accentColor(.white)
+                    .onChange(of: volumeManager.mediaVol) { oldValue, newValue in
+                        let percentageGlobal = newValue / 100
+                        let backgroundVol = volumeManager.noiseVol * percentageGlobal
+                        let breathVol = volumeManager.voiceVol * percentageGlobal
+                        audioManager.setSoundVolume(volume: backgroundVol / 100 )
+                        audioManager.setBreathVolume(volume: breathVol / 100)
+                    }
                 
             }
             
@@ -73,6 +81,9 @@ struct VolumeSettingsViewV2: View {
                 
                 Slider(value: $volumeManager.voiceVol, in: 0...100)
                     .accentColor(.white)
+                    .onChange(of: volumeManager.voiceVol) { oldValue, newValue in
+                        audioManager.setBreathVolume(volume: newValue / 100)
+                    }
                 
             }
             
@@ -104,6 +115,9 @@ struct VolumeSettingsViewV2: View {
                 
                 Slider(value: $volumeManager.noiseVol, in: 0...100)
                     .accentColor(.white)
+                    .onChange(of: volumeManager.noiseVol) { oldValue, newValue in
+                        audioManager.setSoundVolume(volume: newValue / 100)
+                    }
                 
             }
         }
@@ -114,5 +128,5 @@ struct VolumeSettingsViewV2: View {
 }
 
 #Preview {
-    VolumeSettingsViewV2().environmentObject(VolumeManager())
+    VolumeSettingsViewV2().environmentObject(VolumeManager()).environmentObject(AudioManager())
 }
