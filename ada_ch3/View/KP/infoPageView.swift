@@ -18,7 +18,7 @@ struct InfoPageView: View {
             background.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // ── Carousel ────────────────────────────────────────────
+                // ── Carousel
                 TabView(selection: $currentIndex) {
                     ForEach(Array(noiseTypes.enumerated()), id: \.offset) { index, noise in
                         noiseCard(noise: noise)
@@ -29,7 +29,7 @@ struct InfoPageView: View {
                 .frame(height: 220)
                 .padding(.top, 12)
 
-                // ── Noise title ─────────────────────────────────────────
+                // ── Noise title
                 Text(noiseTypes[currentIndex].name)
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
@@ -40,7 +40,7 @@ struct InfoPageView: View {
                 Divider()
                     .background(Color.white.opacity(0.15))
 
-                // ── Scrollable text ─────────────────────────────────────
+                // ── Scrollable text 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         infoSection(
