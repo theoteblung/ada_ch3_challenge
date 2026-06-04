@@ -70,25 +70,27 @@ extension Color {
     }
 }
 
-extension View {
-    func gradientText() -> some View {
-        self.modifier(GradientTextModifier())
-    }
-}
+//extension View {
+//    func gradientText() -> some View {
+//        self.modifier(GradientTextModifier())
+//    }
+//}
 
-struct GradientTextModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.white.opacity(0.60),
-                        Color.white
-                    ]),
-                    startPoint: .topTrailing,
-                    endPoint: .bottomLeading
-                )
-            )
-            .mask(content)
-    }
-}
+//struct GradientTextModifier: ViewModifier {
+//    func body(content: Content) -> some View {
+//        content
+//            .overlay(
+//                LinearGradient(
+//                    gradient: Gradient(colors: [
+//                        Color.white.opacity(0.60),
+//                        Color.white
+//                    ]),
+//                    startPoint: .topTrailing,
+//                    endPoint: .bottomLeading
+//                )
+//            )
+//            .mask(content)
+//    }
+//}
+
+

@@ -25,7 +25,6 @@ struct mainScreenView: View {
     @State private var isPlaying: Bool = false
 
     // MARK: - Design Tokens
-    private let background    = Color(hex: "#1A1916")
     private let innerCircle   = Color(hex: "#CAABA6")
     private let middleCircle  = Color(hex: "#CAABA6")
     private let outerCircle   = Color(hex: "#99645A")
@@ -138,6 +137,7 @@ struct mainScreenView: View {
                             .font(.system(size: 100, weight: .regular))
                             .foregroundColor(.white)
                             .offset(x: 15, y: 40)
+                            .shadow(radius: 8, x: 4, y: 3)
                     }
                     .frame(width: outerDiameter, height: outerDiameter)
                     .offset(x: 50)
@@ -147,8 +147,6 @@ struct mainScreenView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .onTapGesture { handleTap() }
-
-            
         }
     }
 
@@ -176,25 +174,21 @@ struct mainScreenView: View {
             } label: {
                 Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
                     .font(.system(size: 26, weight: .regular))
-                    .foregroundColor(isDarkMode ? .gray : .yellow)
+                    .foregroundColor(Color("IconBG"))
                     .padding(8)
-//                    .background(
-//                        Circle()
-//                            .fill(isDarkMode ? Color.gray.opacity(0.2) : Color.gray.opacity(0.2))
-//                    )
             }
             
             //setting button
-            NavigationLink {
-                SettingsView()
-                    .environmentObject(settings)
-            } label: {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 26, weight: .regular))
-                    .foregroundColor(.white.opacity(0.60))
-                    .padding(8)
-                    .contentShape(Rectangle())
-            }
+//            NavigationLink {
+//                SettingsView()
+//                    .environmentObject(settings)
+//            } label: {
+//                Image(systemName: "gearshape.fill")
+//                    .font(.system(size: 26, weight: .regular))
+//                    .foregroundColor(Color("IconBG"))
+//                    .padding(8)
+//                    .contentShape(Rectangle())
+//            }
         }
     }
 
