@@ -39,12 +39,12 @@ struct VolumeSettingsViewV2: View {
                     }
                 }) {
                     Image(systemName: volumeManager.mediaMute || volumeManager.mediaVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                        .tint(Color.white)
+                        .tint(Color("IconColor"))
                     }
                 
                 Slider(value: $volumeManager.mediaVol, in: 0...100) {_ in if volumeManager.mediaVol > 0.0{
                     volumeManager.mediaMute = false}}
-                    .accentColor(.white)
+                    .accentColor(Color("AccentColor"))
                     .onChange(of: volumeManager.mediaVol) { oldValue, newValue in
                         let percentageGlobal = newValue / 100
                         let backgroundVol = volumeManager.noiseVol * percentageGlobal
@@ -77,12 +77,12 @@ struct VolumeSettingsViewV2: View {
                     }
                 }) {
                     Image(systemName: volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                        .tint(Color.white)
+                        .tint(Color("IconColor"))
                     }
                 
                 Slider(value: $volumeManager.voiceVol, in: 0...100) {_ in if volumeManager.voiceVol > 0.0{
                     volumeManager.voiceMute = false}}
-                    .accentColor(.white)
+                    .accentColor(Color("AccentColor"))
                     .onChange(of: volumeManager.voiceVol) { oldValue, newValue in
                         audioManager.setBreathVolume(volume: newValue / 100)
                     }
@@ -112,12 +112,12 @@ struct VolumeSettingsViewV2: View {
                     
                 }) {
                     Image(systemName: volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                        .tint(Color.white)
+                        .tint(Color("IconColor"))
                     }
                 
                 Slider(value: $volumeManager.noiseVol, in: 0...100) {_ in if volumeManager.noiseVol > 0.0{
                     volumeManager.noiseMute = false}}
-                    .accentColor(.white)
+                    .accentColor(Color("AccentColor"))
                     .onChange(of: volumeManager.noiseVol) { oldValue, newValue in
                         audioManager.setSoundVolume(volume: newValue / 100)
                     }
