@@ -22,53 +22,32 @@ enum BoxPhase: Int, CaseIterable {
         case .holdBottom: return "Hold"
         }
     }
-
-//    var cue: BreathingCue {
-//        switch self {
-//        case .breatheIn:  return .breatheIn
-//        case .holdTop:    return .breathe        // placeholder hold cue
-//        case .breatheOut: return .letItOut
-//        case .holdBottom: return .breathe        // placeholder hold cue
-//        }
-//    }
 }
 
 struct ActiveView: View {
     var onStop: () -> Void
 
     @EnvironmentObject var settings: AppSettings
-    
-    @State private var ballScale: CGFloat = 1.0
-
-    private let initialBufferDuration: Double = 2.0
-    private let fadeOutDuration: Double = 0.4
-    private let textGapDuration: Double = 0.5
+    @EnvironmentObject var volumeManager: VolumeManager
+    @EnvironmentObject var audioManager: AudioManager
 
     // MARK: - Breathing State
     @State private var phase: BoxPhase = .breatheIn
     @State private var labelOpacity: Double = 0
     @State private var ballProgress: CGFloat = 0  // 0...1 within a single edge
+    @State private var ballScale: CGFloat = 1.0
     @State private var phaseTimer: Timer?
-    @State private var ballAnimationTimer: Timer?
-
-    // MARK: - Session Timer (from settings)
-    @State private var sessionRemaining: Int? = nil   // seconds remaining
-    @State private var sessionTimer: Timer?
-    @State private var pendingStop: Bool = false      // stop after current cycle ends
 
     // MARK: - Constants
+    private let initialBufferDuration: Double = 1
     private let phaseDuration: Double = 4.0
+    private let fadeOutDuration: Double = 0.4
+    private let textGapDuration: Double = 0.5
     private let boxSize: CGFloat = 250
-    private let borderColor = Color(hex: "#636261")
-    private let background  = Color(hex: "#1A1916")
-    
-    // theo add audio player
-    @EnvironmentObject var volumeManager: VolumeManager
-    @EnvironmentObject var audioManager: AudioManager
 
     var body: some View {
         ZStack {
-            background.ignoresSafeArea()
+            Color("ColorBG").ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // ── Top bar
@@ -79,7 +58,7 @@ struct ActiveView: View {
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 22, weight: .regular))
-                            .foregroundColor(.white.opacity(0.70))
+                            .foregroundColor(Color("IconBG"))
                             .padding(8)
                             .contentShape(Rectangle())
                     }
@@ -112,19 +91,18 @@ struct ActiveView: View {
         ZStack {
             // Outline
             Rectangle()
-                .strokeBorder(borderColor, lineWidth: 2)
+                .strokeBorder(Color("BoxBorder"), lineWidth: 2)
                 .frame(width: boxSize, height: boxSize)
 
-            // Center label
+            // Center label (no implicit .animation — explicit withAnimation handles it)
             Text(phase.label)
                 .font(.system(size: 40, weight: .bold))
-                .gradientText()
+//                .gradientText()
                 .opacity(labelOpacity)
-                .animation(.easeInOut(duration: 0.6), value: labelOpacity)
 
             // Moving ball (clockwise around the perimeter)
             Circle()
-                .fill(Color.white)
+                .fill(Color("BallColor"))
                 .frame(width: 14, height: 14)
                 .scaleEffect(ballScale)
                 .offset(ballOffset)
@@ -149,45 +127,25 @@ struct ActiveView: View {
 
     // MARK: - Session Engine
     private func startSession() {
-        if let mins = settings.selectedTimer {
-            sessionRemaining = mins * 60
-            startSessionTimer()
-        } else {
-            sessionRemaining = nil
-        }
-
         // Reset
         phase = .breatheIn
         labelOpacity = 0
         ballProgress = 0
         ballScale = 1.0
 
-        // Wait for view transition to fully settle before animation
+        // Wait for view transition to fully settle before animation begins
         DispatchQueue.main.asyncAfter(deadline: .now() + initialBufferDuration) {
             runPhase()
-        }
-    }
-    private func startSessionTimer() {
-        sessionTimer?.invalidate()
-        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            guard var remaining = sessionRemaining else { return }
-            remaining -= 1
-            sessionRemaining = remaining
-            if remaining <= 0 {
-                // Timer expired: stop after current full cycle ends
-                pendingStop = true
-                sessionTimer?.invalidate()
-                sessionTimer = nil
-            }
         }
     }
 
     private func runPhase() {
         audioManager.playBreathDynamic()
         audioManager.breathIndex += 1
-        if (audioManager.breathIndex > 3) {
+        if audioManager.breathIndex > 3 {
             audioManager.breathIndex = 0
         }
+
         // Fade label in
         withAnimation(.easeInOut(duration: 0.6)) {
             labelOpacity = 1.0
@@ -204,7 +162,7 @@ struct ActiveView: View {
             ballScale = ballTargetScale(for: phase)
         }
 
-        // Schedule fade-out so it completes textGapDuration before next phase begins
+        // Schedule fade-out so it completes textGapDuration BEFORE next phase begins
         let fadeOutStart = phaseDuration - fadeOutDuration - textGapDuration
 
         phaseTimer?.invalidate()
@@ -230,18 +188,7 @@ struct ActiveView: View {
 
     private func advancePhase() {
         let next = (phase.rawValue + 1) % BoxPhase.allCases.count
-        let nextPhase = BoxPhase(rawValue: next) ?? .breatheIn
-
-        // Check if we just completed a full cycle (back to breatheIn)
-        let cycleCompleted = (nextPhase == .breatheIn)
-
-        if cycleCompleted && pendingStop {
-            // Timer expired during last cycle — exit now
-            exitToMain()
-            return
-        }
-
-        phase = nextPhase
+        phase = BoxPhase(rawValue: next) ?? .breatheIn
         runPhase()
     }
 
@@ -252,22 +199,18 @@ struct ActiveView: View {
 
     private func exitToMain() {
         stopAllTimers()
-//        AudioManager.shared.stopAll()
         onStop()
     }
 
     private func stopAllTimers() {
         phaseTimer?.invalidate()
         phaseTimer = nil
-        sessionTimer?.invalidate()
-        sessionTimer = nil
-        ballAnimationTimer?.invalidate()
-        ballAnimationTimer = nil
     }
 }
 
 #Preview {
     ActiveView(onStop: {})
         .environmentObject(AppSettings())
-        .environmentObject(VolumeManager()).environmentObject(AudioManager())
+        .environmentObject(VolumeManager())
+        .environmentObject(AudioManager())
 }

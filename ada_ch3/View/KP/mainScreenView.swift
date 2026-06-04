@@ -8,53 +8,6 @@
 import SwiftUI
 import Combine
 
-// MARK: - Gradient Text ViewModifier
-struct GradientTextModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .overlay(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.white.opacity(0.60),
-                        Color.white
-                    ]),
-                    startPoint: .topTrailing,
-                    endPoint: .bottomLeading
-                )
-            )
-            .mask(content)
-    }
-}
-
-extension View {
-    func gradientText() -> some View {
-        self.modifier(GradientTextModifier())
-    }
-}
-
-// MARK: - App Settings (shared state)
-class AppSettings: ObservableObject {
-    @Published var selectedTimer: Int? = nil
-    @Published var isLightMode: Bool = false
-    @Published var loopBreathing: Bool = true
-    @Published var autoBackgroundSound: Bool = true
-    @Published var selectedNoise: NoiseSelection = .white
-}
-
-enum NoiseSelection: String, CaseIterable, Identifiable {
-    case white = "White Noise"
-    case pink  = "Pink Noise"
-    case brown = "Brown Noise"
-    var id: String { rawValue }
-    var color: Color {
-        switch self {
-        case .white: return Color.white.opacity(0.85)
-        case .pink:  return Color(hex: "#CAABA6")
-        case .brown: return Color(hex: "#99645A")
-        }
-    }
-}
-
 struct mainScreenView: View {
     @AppStorage("isDarkMode") private var isDarkMode = true
     @EnvironmentObject var volumeManager: VolumeManager
@@ -72,7 +25,6 @@ struct mainScreenView: View {
     @State private var isPlaying: Bool = false
 
     // MARK: - Design Tokens
-    private let background    = Color(hex: "#1A1916")
     private let innerCircle   = Color(hex: "#CAABA6")
     private let middleCircle  = Color(hex: "#CAABA6")
     private let outerCircle   = Color(hex: "#99645A")
@@ -111,7 +63,7 @@ struct mainScreenView: View {
             .preferredColorScheme(isDarkMode ? .dark : .light)
             .background(Color("ColorBG").ignoresSafeArea())
             .onAppear {
-                audioManager.playNoiseDynamic(.pinkNoise, volume: 0.5)
+//                audioManager.playNoiseDynamic(.pinkNoise, volume: 0.5)
                 startPulse()
             }
             .toolbar(.hidden, for: .navigationBar)
@@ -136,12 +88,12 @@ struct mainScreenView: View {
                         Text("Tap to")
                             .font(.system(size: 40, weight: .light))                        .lineLimit(1)
                             .fixedSize()
-                            .offset(x: -100)
+                            .offset(x: -120)
                         
                         Text("start")
                             .font(.system(size: 40, weight: .bold))                        .lineLimit(1)
                             .fixedSize()
-                            .offset(x: -90)
+                            .offset(x: -110)
                     }
 
                     ZStack {
@@ -161,6 +113,7 @@ struct mainScreenView: View {
                             .frame(width: outerDiameter, height: outerDiameter)
                             .scaleEffect(pulse2Scale)
                             .opacity(pulse2Opacity)
+                            .offset(x:-15)
 
                         // Inner glow — #CAABA6 radial
                         Circle()
@@ -177,12 +130,14 @@ struct mainScreenView: View {
                             )
                             .frame(width: innerDiameter, height: innerDiameter)
                             .scaleEffect(innerScale)
+                            .offset(x: -15)
 
                         // Hand icon
                         Image(systemName: "hand.tap.fill")
                             .font(.system(size: 100, weight: .regular))
                             .foregroundColor(.white)
-                            .offset(x: 30, y: 40)
+                            .offset(x: 15, y: 40)
+                            .shadow(radius: 8, x: 4, y: 3)
                     }
                     .frame(width: outerDiameter, height: outerDiameter)
                     .offset(x: 50)
@@ -192,23 +147,7 @@ struct mainScreenView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .onTapGesture { handleTap() }
-
-            
         }
-    }
-
-    // MARK: - Gradient Fill for circles
-    private func gradientFill(opacity: Double) -> RadialGradient {
-        RadialGradient(
-            gradient: Gradient(colors: [
-                innerCircle.opacity(opacity),
-                outerCircle.opacity(opacity * 0.5),
-                outerCircle.opacity(0.0)
-            ]),
-            center: .center,
-            startRadius: 4,
-            endRadius: 110
-        )
     }
 
     // MARK: - Top Bar
@@ -235,12 +174,8 @@ struct mainScreenView: View {
             } label: {
                 Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
                     .font(.system(size: 26, weight: .regular))
-                    .foregroundColor(isDarkMode ? .purple : .orange)
+                    .foregroundColor(Color("IconBG"))
                     .padding(8)
-                    .background(
-                        Circle()
-                            .fill(isDarkMode ? Color.gray.opacity(0.2) : Color.gray.opacity(0.2))
-                    )
             }
             
             //setting button
@@ -249,8 +184,8 @@ struct mainScreenView: View {
 //                    .environmentObject(settings)
 //            } label: {
 //                Image(systemName: "gearshape.fill")
-//                    .font(.system(size: 22, weight: .regular))
-//                    .foregroundColor(.white.opacity(0.60))
+//                    .font(.system(size: 26, weight: .regular))
+//                    .foregroundColor(Color("IconBG"))
 //                    .padding(8)
 //                    .contentShape(Rectangle())
 //            }
@@ -279,30 +214,6 @@ struct mainScreenView: View {
     }
 }
 
-// MARK: - Color Hex Extension
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let r, g, b: UInt64
-        switch hex.count {
-        case 6:
-            (r, g, b) = ((int >> 16) & 0xFF, (int >> 8) & 0xFF, int & 0xFF)
-        default:
-            (r, g, b) = (1, 1, 0)
-        }
-        self.init(
-            .sRGB,
-            red:   Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: 1
-        )
-    }
-}
-
-// MARK: - Preview
 #Preview {
     mainScreenView().environmentObject(VolumeManager()).environmentObject(AudioManager())
 }
