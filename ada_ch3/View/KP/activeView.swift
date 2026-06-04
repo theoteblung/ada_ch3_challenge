@@ -34,7 +34,7 @@ struct ActiveView: View {
     // MARK: - Breathing State
     @State private var phase: BoxPhase = .breatheIn
     @State private var labelOpacity: Double = 0
-    @State private var ballProgress: CGFloat = 0  // 0...1 within a single edge
+    @State private var ballPosition: CGFloat = 0
     @State private var ballScale: CGFloat = 1.0
     @State private var phaseTimer: Timer?
 
@@ -45,12 +45,19 @@ struct ActiveView: View {
     private let textGapDuration: Double = 0.5
     private let boxSize: CGFloat = 250
 
+    // Trail tuning
+    private let trailSegments: Int = 24
+    private let trailHeadWidth: CGFloat = 7
+    private let trailTaperExponent: Double = 2.8
+    // Trail length cap: 3/4 of one side
+    private let maxTrailFraction: CGFloat = 0.75 / 4.0  // = 0.1875
+
     var body: some View {
         ZStack {
             Color("ColorBG").ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // ── Top bar
+                // Top bar
                 HStack {
                     Spacer()
                     Button {
@@ -68,7 +75,7 @@ struct ActiveView: View {
 
                 Spacer()
 
-                // ── Box breathing
+                // Box breathing
                 breathingBox
 
                 Spacer()
@@ -94,13 +101,30 @@ struct ActiveView: View {
                 .strokeBorder(Color("BoxBorder"), lineWidth: 2)
                 .frame(width: boxSize, height: boxSize)
 
-            // Center label (no implicit .animation — explicit withAnimation handles it)
+            // Comet trail
+            ForEach(0..<trailSegments, id: \.self) { i in
+                let widthRatio = pow(Double(i + 1) / Double(trailSegments), trailTaperExponent)
+                TrailSegmentShape(
+                    ballPosition: ballPosition,
+                    segmentIndex: i,
+                    totalSegments: trailSegments,
+                    maxTrailFraction: maxTrailFraction
+                )
+                .stroke(
+                    Color("BallColor"),
+                    style: StrokeStyle(
+                        lineWidth: trailHeadWidth * CGFloat(widthRatio),
+                        lineCap: .round
+                    )
+                )
+                .frame(width: boxSize, height: boxSize)
+            }
+
             Text(phase.label)
                 .font(.system(size: 40, weight: .bold))
-//                .gradientText()
                 .opacity(labelOpacity)
 
-            // Moving ball (clockwise around the perimeter)
+            // Moving ball
             Circle()
                 .fill(Color("BallColor"))
                 .frame(width: 14, height: 14)
@@ -111,17 +135,20 @@ struct ActiveView: View {
     }
 
     // MARK: - Ball Position
+    // Derived from continuous ballPosition; clockwise from top-left.
     private var ballOffset: CGSize {
         let half = boxSize / 2
-        switch phase {
-        case .breatheIn:
-            return CGSize(width: -half + boxSize * ballProgress, height: -half)
-        case .holdTop:
-            return CGSize(width: half, height: -half + boxSize * ballProgress)
-        case .breatheOut:
-            return CGSize(width: half - boxSize * ballProgress, height: half)
-        case .holdBottom:
-            return CGSize(width: -half, height: half - boxSize * ballProgress)
+        let raw = ballPosition.truncatingRemainder(dividingBy: 1.0)
+        let normalized = raw < 0 ? raw + 1 : raw
+        let edgeIdx = Int(floor(normalized * 4)) % 4
+        let edgeProg = (normalized * 4) - floor(normalized * 4)
+
+        switch edgeIdx {
+        case 0: return CGSize(width: -half + boxSize * edgeProg, height: -half)
+        case 1: return CGSize(width: half, height: -half + boxSize * edgeProg)
+        case 2: return CGSize(width: half - boxSize * edgeProg, height: half)
+        case 3: return CGSize(width: -half, height: half - boxSize * edgeProg)
+        default: return .zero
         }
     }
 
@@ -130,7 +157,7 @@ struct ActiveView: View {
         // Reset
         phase = .breatheIn
         labelOpacity = 0
-        ballProgress = 0
+        ballPosition = 0
         ballScale = 1.0
 
         // Wait for view transition to fully settle before animation begins
@@ -151,10 +178,10 @@ struct ActiveView: View {
             labelOpacity = 1.0
         }
 
-        // Ball position — linear travel along edge
-        ballProgress = 0
+        // Continuous ball position — advances 0.25 per phase, never resets between laps.
+        let positionTarget = ballPosition + 0.25
         withAnimation(.linear(duration: phaseDuration)) {
-            ballProgress = 1.0
+            ballPosition = positionTarget
         }
 
         // Ball scale — eased to reflect breath state
@@ -179,16 +206,17 @@ struct ActiveView: View {
 
     private func ballTargetScale(for phase: BoxPhase) -> CGFloat {
         switch phase {
-        case .breatheIn:  return 1.8   // grow while inhaling
-        case .holdTop:    return 1.8   // stay large
-        case .breatheOut: return 1.0   // shrink while exhaling
-        case .holdBottom: return 1.0   // stay small
+        case .breatheIn:  return 1.8
+        case .holdTop:    return 1.8
+        case .breatheOut: return 1.0
+        case .holdBottom: return 1.0
         }
     }
 
     private func advancePhase() {
-        let next = (phase.rawValue + 1) % BoxPhase.allCases.count
-        phase = BoxPhase(rawValue: next) ?? .breatheIn
+        let nextIndex = (phase.rawValue + 1) % BoxPhase.allCases.count
+        // No trail reset — ballPosition continues to grow across laps.
+        phase = BoxPhase(rawValue: nextIndex) ?? .breatheIn
         runPhase()
     }
 
@@ -205,6 +233,65 @@ struct ActiveView: View {
     private func stopAllTimers() {
         phaseTimer?.invalidate()
         phaseTimer = nil
+    }
+}
+
+// MARK: - Trail Segment Shape
+struct TrailSegmentShape: Shape {
+    var ballPosition: CGFloat
+    let segmentIndex: Int
+    let totalSegments: Int
+    let maxTrailFraction: CGFloat
+
+    var animatableData: CGFloat {
+        get { ballPosition }
+        set { ballPosition = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        let s = min(rect.width, rect.height)
+        let trailLen = min(ballPosition, maxTrailFraction)
+        guard trailLen > 0 else { return Path() }
+
+        let segLen = trailLen / CGFloat(totalSegments)
+        let rawStart = ballPosition - trailLen + CGFloat(segmentIndex) * segLen
+        let rawEnd   = ballPosition - trailLen + CGFloat(segmentIndex + 1) * segLen
+        guard rawEnd > rawStart else { return Path() }
+
+        var path = Path()
+        path.move(to: pointOnPerimeter(t: rawStart, s: s))
+
+        // Walk along the perimeter, adding a vertex at each corner crossed.
+        var current = rawStart
+        var safety = 0
+        while current < rawEnd && safety < 8 {
+            let baseCorner = floor(current * 4 + 1e-9)
+            let nextCorner = (baseCorner + 1) / 4
+            if nextCorner >= rawEnd {
+                path.addLine(to: pointOnPerimeter(t: rawEnd, s: s))
+                break
+            }
+            path.addLine(to: pointOnPerimeter(t: nextCorner, s: s))
+            current = nextCorner
+            safety += 1
+        }
+
+        return path
+    }
+
+    private func pointOnPerimeter(t: CGFloat, s: CGFloat) -> CGPoint {
+        let r = t.truncatingRemainder(dividingBy: 1.0)
+        let normalized = r < 0 ? r + 1 : r
+        let edgeIdx = Int(floor(normalized * 4)) % 4
+        let edgeProg = (normalized * 4) - floor(normalized * 4)
+
+        switch edgeIdx {
+        case 0: return CGPoint(x: s * edgeProg, y: 0)           // top    L → R
+        case 1: return CGPoint(x: s, y: s * edgeProg)           // right  T → B
+        case 2: return CGPoint(x: s - s * edgeProg, y: s)       // bottom R → L
+        case 3: return CGPoint(x: 0, y: s - s * edgeProg)       // left   B → T
+        default: return .zero
+        }
     }
 }
 

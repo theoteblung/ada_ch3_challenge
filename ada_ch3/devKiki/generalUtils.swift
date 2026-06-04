@@ -9,16 +9,30 @@ import SwiftUI
 import Combine
 
 enum NoiseSelection: String, CaseIterable, Identifiable {
-    case white = "White Noise"
-    case pink  = "Pink Noise"
     case brown = "Brown Noise"
+    case pink  = "Pink Noise"
+    case white = "White Noise"
+    
     var id: String { rawValue }
+    
     var color: Color {
         switch self {
-            case .white: return Color.white.opacity(0.85)
-            case .pink:  return Color(hex: "#CAABA6")
+            case .white: return Color(hex: "#DED9D0")
+            case .pink:  return Color(hex: "#E8A1AA")
             case .brown: return Color(hex: "#99645A")
         }
+    }
+    
+    func outerEdgeOpacity(isLightMode: Bool) -> Double {
+        (self == .white && isLightMode) ? 0.1 : 0.0
+    }
+    
+    func innerEdgeOpacity(isLightMode: Bool) -> Double {
+        (self == .white && isLightMode) ? 0.2 : 0.0
+    }
+    
+    func shadowRadius(isLightMode: Bool) -> CGFloat {
+        (self == .white && isLightMode) ? 8 : 0
     }
 }
 
