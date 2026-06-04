@@ -2,47 +2,63 @@
 //  BreathingExercise.swift
 //  ada_ch3
 //
-//  Breathing rhythm definitions. Each exercise reuses the box-breathing theme:
-//  a ball travels the perimeter of a shape while a centered label cues the breath.
-//  Add a new rhythm = add a preset below; the engine + diagram adapt automatically.
+//  The DATA for each breathing technique. No animation lives here — just a
+//  description of what each exercise is made of.
+//
+//  Every exercise shares the same idea: a ball travels around the outline of a
+//  shape, one breath phase per side/edge/half, while a label in the middle tells
+//  you what to do ("Breathe in", "Hold", "Breathe out").
+//
+//  Want a new technique? Add a preset at the bottom. The engine and the diagram
+//  pick it up automatically.
 //
 
 import Foundation
 
+/// The three kinds of breath. The label shown on screen is stored on the phase
+/// itself; this type only describes the *kind* so the engine knows how to react
+/// (which sound to play, whether the ball should grow or shrink).
 enum BreathPhaseType {
     case inhale
     case hold
     case exhale
 
-    /// Bridge to AudioManager.playBreathDynamic(): 0 -> breathe_in, 2 -> breathe_out, else hold.
+    /// Bridge to `AudioManager.playBreathDynamic()`:
+    /// 0 -> breathe_in sound, 2 -> breathe_out sound, 1 -> hold sound.
     var breathIndex: Int {
         switch self {
         case .inhale: return 0
-        case .exhale: return 2
         case .hold:   return 1
+        case .exhale: return 2
         }
     }
 }
 
-/// Geometry the breath ball travels around.
+/// The outline the ball travels around.
 enum BreathShape {
     case square     // 4-4 box breathing
-    case circle     // 4-6 expand/contract breathing
+    case circle     // 4-6 expand / contract breathing
     case triangle   // 5-5-5 triangle breathing
 }
 
+/// A single step of a breathing exercise: how long it lasts and what to show.
 struct BreathPhase: Identifiable {
     let id = UUID()
     let type: BreathPhaseType
-    let duration: Double
-    var label: String
+    let duration: Double      // seconds
+    var label: String         // e.g. "Breathe in"
 }
 
+/// One complete breathing technique.
 struct BreathingExercise: Identifiable, Equatable {
     let id = UUID()
-    let shortName: String    // carousel caption, e.g. "4-4"
+    let shortName: String     // caption under the selector icon, e.g. "4-4"
     let shape: BreathShape
     let phases: [BreathPhase]
+
+    /// How many pieces the shape's outline is split into.
+    /// One phase = one piece (square -> 4 sides, triangle -> 3 edges, circle -> 2 halves).
+    var segmentCount: Int { phases.count }
 
     static func == (lhs: BreathingExercise, rhs: BreathingExercise) -> Bool {
         lhs.id == rhs.id
@@ -50,7 +66,7 @@ struct BreathingExercise: Identifiable, Equatable {
 
     // MARK: - Presets
 
-    /// 4-4 Box: inhale, hold, exhale, hold — ball circles a square.
+    /// 4-4 Box: breathe in, hold, breathe out, hold — ball circles a square.
     static let box = BreathingExercise(
         shortName: "4-4",
         shape: .square,
@@ -62,7 +78,7 @@ struct BreathingExercise: Identifiable, Equatable {
         ]
     )
 
-    /// 5-5-5 Triangle: inhale, hold, exhale — ball traces one edge per phase.
+    /// 5-5-5 Triangle: breathe in, hold, breathe out — ball rides one edge per phase.
     static let triangle = BreathingExercise(
         shortName: "5-5-5",
         shape: .triangle,
@@ -73,7 +89,7 @@ struct BreathingExercise: Identifiable, Equatable {
         ]
     )
 
-    /// 4-6 Circle: short inhale, long exhale — ring expands then contracts.
+    /// 4-6 Circle: short breathe in, long breathe out — ball loops the circle.
     static let circle = BreathingExercise(
         shortName: "4-6",
         shape: .circle,
@@ -83,6 +99,6 @@ struct BreathingExercise: Identifiable, Equatable {
         ]
     )
 
-    /// Carousel order matches the prototype: square, triangle, circle.
+    /// Order shown in the selector: square, triangle, circle.
     static let all: [BreathingExercise] = [box, triangle, circle]
 }

@@ -41,7 +41,7 @@ struct mainScreenView: View {
             ZStack(alignment: .bottom) {
                 Group {
                     if isPlaying {
-                        ActiveView(onStop: {
+                        BreathingGuideView(onStop: {
                             withAnimation(.easeInOut(duration: 0.8)) {
                                 isPlaying = false
                             }
