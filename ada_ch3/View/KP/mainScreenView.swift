@@ -81,7 +81,7 @@ struct mainScreenView: View {
                 HStack {
                     Text(activeNoise.rawValue.components(separatedBy: " ").first ?? "")
                                 .font(.system(size: 40, weight: .bold))
-                                .foregroundStyle(Color.gray)
+                                .foregroundStyle(Color("TextSecondary"))
                     Text(activeNoise.rawValue.components(separatedBy: " ").last ?? "Noise")
                                 .font(.system(size: 40, weight: .light))
                                 .foregroundStyle(Color.gray)
@@ -89,7 +89,7 @@ struct mainScreenView: View {
                 
                 Text("playing...")
                     .font(.system(size: 30, weight: .ultraLight))
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(Color("TextSecondary"))
             }
             .padding(.top, 40)
             
@@ -111,12 +111,12 @@ struct mainScreenView: View {
                     ForEach(0..<3, id: \.self) { dotIndex in
                         Circle()
                             // Check if the current visible noise index maps to this dot
-                            .fill(activeIndex % 3 == dotIndex ? Color.white : Color.gray.opacity(0.5))
+                            .fill(activeIndex % 3 == dotIndex ? (isDarkMode ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2)) : Color.gray.opacity(0.5))
                             .frame(width: 8, height: 8)
                             .animation(.smooth(duration: 0.3), value: activeIndex)
                     }
                 }
-                .padding(.bottom, 120) // Push it up safely above your Volume bottom sheet
+                .padding(.bottom, 120)
             }
             .onAppear {
                 let initialNoise = noiseForIndex(activeIndex)
@@ -231,9 +231,7 @@ struct mainScreenView: View {
             
             //darkmode button
             Button {
-                withAnimation(.easeInOut) {
-                    isDarkMode.toggle()
-                }
+                isDarkMode.toggle()
             } label: {
                 Image(systemName: isDarkMode ? "moon.stars.fill" : "sun.max.fill")
                     .font(.system(size: 26, weight: .regular))
