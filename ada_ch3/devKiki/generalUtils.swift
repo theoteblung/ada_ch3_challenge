@@ -37,7 +37,15 @@ enum NoiseSelection: String, CaseIterable, Identifiable {
 }
 
 class OnboardingManager: ObservableObject {
-    @Published var isCompleted = false
+    @Published var isCompleted: Bool {
+        didSet {
+            UserDefaults.standard.set(isCompleted, forKey: "onboardingCompleted")
+        }
+    }
+
+    init() {
+        self.isCompleted = UserDefaults.standard.bool(forKey: "onboardingCompleted")
+    }
 }
 
 class VolumeManager: ObservableObject {
@@ -106,5 +114,4 @@ extension Color {
 //            .mask(content)
 //    }
 //}
-
 

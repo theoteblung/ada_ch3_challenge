@@ -47,11 +47,9 @@ struct InfoPageView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var currentIndex: Int = 0
 
-    private let background = Color(hex: "#1A1916")
-
     var body: some View {
         ZStack {
-            background.ignoresSafeArea()
+            Color("ColorBG").ignoresSafeArea()
 
             VStack(spacing: 0) {
                 // ── Carousel
@@ -68,15 +66,15 @@ struct InfoPageView: View {
                 // ── Noise title
                 Text(noiseTypes[currentIndex].name)
                     .font(.system(size: 22, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("TextPrimary"))
                     .padding(.top, 20)
                     .padding(.bottom, 16)
                     .animation(.easeInOut(duration: 0.2), value: currentIndex)
 
                 Divider()
-                    .background(Color.white.opacity(0.15))
+                    .background(Color("CardBorder"))
 
-                // ── Scrollable text 
+                // ── Scrollable text x
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         infoSection(
@@ -101,9 +99,8 @@ struct InfoPageView: View {
         .navigationTitle("Noise Information")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .toolbarBackground(background, for: .navigationBar)
+        .toolbarBackground(Color("ColorBG"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -116,23 +113,23 @@ struct InfoPageView: View {
                         Text("Back")
                             .font(.system(size: 17))
                     }
-                    .foregroundColor(.white.opacity(0.85))
+                    .foregroundColor(Color("TextPrimary").opacity(0.85))
                 }
             }
         }
     }
 
-    // ── Carousel card ────────────────────────────────────────────────
+    // ── Carousel card
     private func noiseCard(noise: NoiseType) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color.white.opacity(0.18))
+                .fill(Color.gray.opacity(0.18))
                 .frame(width: 170, height: 170)
 
             HStack(spacing: 4) {
                 ForEach([0.45, 0.70, 1.0, 0.70, 0.45], id: \.self) { h in
                     RoundedRectangle(cornerRadius: 2)
-                        .fill(Color.white.opacity(0.50))
+                        .fill(Color("TextSecondary").opacity(0.50))
                         .frame(width: 4, height: 36 * h)
                 }
             }
@@ -143,22 +140,22 @@ struct InfoPageView: View {
 //                    .frame(width: 44, height: 44)
                 Image(systemName: "play.fill")
                     .font(.system(size: 16, weight: .regular))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color("TextPrimary"))
                     .offset(x: 2)
             }
         }
     }
 
-    // ── Text section ─────────────────────────────────────────────────
+    // ── Text section
     @ViewBuilder
     private func infoSection(heading: String, body: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(heading)
                 .font(.system(size: 17, weight: .semibold))
-                .foregroundColor(Color(hex: "#CAABA6").opacity(0.75))
+                .foregroundColor(Color("TextPrimary"))
             Text(body)
                 .font(.system(size: 17, weight: .regular))
-                .foregroundColor(.white.opacity(0.85))
+                .foregroundColor(Color("TextSecondary"))
                 .fixedSize(horizontal: false, vertical: true)
         }
     }
@@ -168,5 +165,5 @@ struct InfoPageView: View {
     NavigationStack {
         InfoPageView()
     }
-    .preferredColorScheme(.dark)
+    .preferredColorScheme(.light)
 }

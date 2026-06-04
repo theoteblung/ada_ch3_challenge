@@ -12,9 +12,6 @@ struct VolumeSheet: View {
     @EnvironmentObject var volumeManager: VolumeManager
     @EnvironmentObject var audioManager: AudioManager
 
-    private let background     = Color(hex: "#1A1916")
-    private let borderColor    = Color(hex: "#979797").opacity(0.20)
-
     var body: some View {
         VStack(spacing: 0) {
             // Collapsed header (always visible)
@@ -69,7 +66,7 @@ struct VolumeSheet: View {
         )
         .overlay(
             VolumeSheetTopBorder()
-                .stroke(borderColor, lineWidth: 1)
+                .stroke(Color("CardBorder"), lineWidth: 1)
         )
     }
 }
@@ -105,7 +102,7 @@ struct VolumeSheetTopBorder: Shape {
 }
 #Preview {
     ZStack {
-        Color(hex: "#1A1916").ignoresSafeArea()
+        Color("ColorBG").ignoresSafeArea()
         VStack {
             Spacer()
             VolumeSheet().environmentObject(VolumeManager()).environmentObject(AudioManager())
