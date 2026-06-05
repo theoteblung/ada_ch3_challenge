@@ -156,6 +156,10 @@ struct BreathingGuideView: View {
             Text(currentPhase.label)
                 .font(.system(size: 32, weight: .bold))
                 .opacity(labelOpacity)
+                .offset(
+                    x: selectedExercise.shape == .triangle ? 0 : 0,
+                    y: selectedExercise.shape == .triangle ? 80 : 0
+                )
         }
         .frame(width: diagramSize, height: diagramSize)
     }

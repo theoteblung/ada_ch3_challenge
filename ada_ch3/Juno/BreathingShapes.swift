@@ -92,7 +92,7 @@ func ballPositionOnPerimeter(shape: BreathShape, lapProgress: CGFloat, diagramSi
         // One smooth loop. Start at the top (12 o'clock) and go clockwise.
         let radius = half
         let angle = (-90 + Double(loop) * 360) * .pi / 180
-        return CGPoint(x: radius * cos(angle), y: radius * sin(angle))
+        return CGPoint(x: radius * CGFloat(cos(angle)), y: radius * sin(angle))
     }
 }
 
