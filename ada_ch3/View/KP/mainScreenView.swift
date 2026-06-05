@@ -26,6 +26,7 @@ struct mainScreenView: View {
     
     @State private var activeNoise: NoiseSelection = .brown
     @State private var activeIndex: Int = 3000
+    @State private var isVolSheetExpanded: Bool = false
 
     // MARK: - Design Tokens
     private let innerCircle   = Color(hex: "#CAABA6")
@@ -50,6 +51,7 @@ struct mainScreenView: View {
                         .environmentObject(audioManager)
                         .transition(.opacity)
                         .environmentObject(settings)
+                        .onTapGesture { handleTap() }
                     } else {
                         mainShell
                             .transition(.opacity)
@@ -57,7 +59,7 @@ struct mainScreenView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                VolumeSheet()
+                VolumeSheet(isVolSheetExpanded: $isVolSheetExpanded)
                     .ignoresSafeArea(edges: .bottom)
                     .environmentObject(volumeManager)
                     .environmentObject(audioManager)
@@ -301,7 +303,12 @@ struct mainScreenView: View {
     // MARK: - Tap Handler
     private func handleTap() {
         withAnimation(.easeInOut(duration: 0.8)) {
-            isPlaying = true
+            if (isVolSheetExpanded) {
+                isVolSheetExpanded.toggle()
+            }else {
+                isPlaying = true
+            }
+            
         }
     }
 }

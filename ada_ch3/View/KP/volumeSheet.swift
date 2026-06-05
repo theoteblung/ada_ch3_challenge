@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct VolumeSheet: View {
-    @State private var isExpanded: Bool = false
+    @Binding var isVolSheetExpanded: Bool
     @EnvironmentObject var volumeManager: VolumeManager
     @EnvironmentObject var audioManager: AudioManager
 
@@ -17,7 +17,7 @@ struct VolumeSheet: View {
             // Collapsed header (always visible)
             Button {
                 withAnimation(.easeInOut(duration: 0.35)) {
-                    isExpanded.toggle()
+                    isVolSheetExpanded.toggle()
                 }
             } label: {
                 HStack {
@@ -26,7 +26,7 @@ struct VolumeSheet: View {
 
                     Spacer()
 
-                    Image(systemName: isExpanded ? "chevron.down" : "chevron.up")
+                    Image(systemName: isVolSheetExpanded ? "chevron.down" : "chevron.up")
                         .font(.system(size: 20, weight: .regular))
                         .foregroundColor(Color("IconBG"))
                 }
@@ -37,7 +37,7 @@ struct VolumeSheet: View {
             .buttonStyle(.plain)
 
             // Expanded content placeholder (to be built out later)
-            if isExpanded {
+            if isVolSheetExpanded {
                 VStack(spacing: 16) {
                     // Placeholder — will be filled with active volume controls later
 //                    Text("Volume controls will go here")
@@ -105,7 +105,7 @@ struct VolumeSheetTopBorder: Shape {
         Color("ColorBG").ignoresSafeArea()
         VStack {
             Spacer()
-            VolumeSheet().environmentObject(VolumeManager()).environmentObject(AudioManager())
+            VolumeSheet(isVolSheetExpanded: .constant(false)).environmentObject(VolumeManager()).environmentObject(AudioManager())
         }
     }
 }
