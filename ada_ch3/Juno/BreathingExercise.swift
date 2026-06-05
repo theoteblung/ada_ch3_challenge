@@ -68,7 +68,7 @@ struct BreathingExercise: Identifiable, Equatable {
 
     /// 4-4 Box: breathe in, hold, breathe out, hold — ball circles a square.
     static let box = BreathingExercise(
-        shortName: "4-4",
+        shortName: "4-4-4-4",
         shape: .square,
         phases: [
             BreathPhase(type: .inhale, duration: 4, label: "Breathe in"),
@@ -80,12 +80,12 @@ struct BreathingExercise: Identifiable, Equatable {
 
     /// 5-5-5 Triangle: breathe in, hold, breathe out — ball rides one edge per phase.
     static let triangle = BreathingExercise(
-        shortName: "5-5-5",
+        shortName: "4-7-8",
         shape: .triangle,
         phases: [
-            BreathPhase(type: .inhale, duration: 5, label: "Breathe in"),
-            BreathPhase(type: .hold,   duration: 5, label: "Hold"),
-            BreathPhase(type: .exhale, duration: 5, label: "Breathe out")
+            BreathPhase(type: .inhale, duration: 4, label: "Breathe in"),
+            BreathPhase(type: .hold,   duration: 7, label: "Hold"),
+            BreathPhase(type: .exhale, duration: 8, label: "Breathe out")
         ]
     )
 
