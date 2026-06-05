@@ -315,13 +315,13 @@ struct mainScreenView: View {
             audioManager.playNoiseDynamic(.brownNoise)
 
         case .white:
-            volumeManager.noiseVol = 20
-            audioManager.soundVolume = 0.20
+            volumeManager.noiseVol = 50
+            audioManager.soundVolume = 0.50
             audioManager.playNoiseDynamic(.whiteNoise)
 
         case .pink:
-            volumeManager.noiseVol = 70
-            audioManager.soundVolume = 0.70
+            volumeManager.noiseVol = 50
+            audioManager.soundVolume = 0.50
             audioManager.playNoiseDynamic(.pinkNoise)
         }
     }

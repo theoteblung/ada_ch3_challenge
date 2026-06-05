@@ -9,11 +9,11 @@ struct Sound: Equatable {
     let name: String
     let ext: String
 
-    static let pinkNoise  = Sound(name: "pink-noise",  ext: "wav")
-    static let whiteNoise = Sound(name: "white-noise", ext: "wav")
-    static let brownNoise = Sound(name: "brown-noise", ext: "caf")
-    static let breathInSound = Sound(name: "breathe_in", ext: "wav")
-    static let breathOutSound = Sound(name: "breathe_out", ext: "wav")
-    static let breathHoldSound = Sound(name: "breathe_hold", ext: "wav")
+    static let pinkNoise  = Sound(name: "pinknoise",  ext: "caf")
+    static let whiteNoise = Sound(name: "whitenoise", ext: "caf")
+    static let brownNoise = Sound(name: "brownnoise", ext: "caf")
+    static let breathInSound = Sound(name: "breathein", ext: "caf")
+    static let breathOutSound = Sound(name: "breatheout", ext: "caf")
+    static let breathHoldSound = Sound(name: "breathehold", ext: "caf")
     // ...add 10 more here, the player code never changes
 }
