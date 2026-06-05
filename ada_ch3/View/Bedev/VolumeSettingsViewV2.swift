@@ -83,8 +83,10 @@ struct VolumeSettingsViewV2: View {
                 Slider(value: $volumeManager.voiceVol, in: 0...100) {_ in if volumeManager.voiceVol > 0.0{
                     volumeManager.voiceMute = false}}
                     .accentColor(Color("AccentColor"))
+                
                     .onChange(of: volumeManager.voiceVol) { oldValue, newValue in
-                        audioManager.setBreathVolume(volume: newValue / 100)
+                        let mediaPercentage = volumeManager.mediaVol / 100
+                        audioManager.setBreathVolume(volume: (newValue / 100) * mediaPercentage)
                     }
                 
             }
@@ -118,10 +120,11 @@ struct VolumeSettingsViewV2: View {
                 Slider(value: $volumeManager.noiseVol, in: 0...100) {_ in if volumeManager.noiseVol > 0.0{
                     volumeManager.noiseMute = false}}
                     .accentColor(Color("AccentColor"))
-                    .onChange(of: volumeManager.noiseVol) { oldValue, newValue in
-                        audioManager.setSoundVolume(volume: newValue / 100)
-                    }
                 
+                    .onChange(of: volumeManager.noiseVol) { oldValue, newValue in
+                        let mediaPercentage = volumeManager.mediaVol / 100
+                        audioManager.setSoundVolume(volume: (newValue / 100) * mediaPercentage)
+                    }
             }
         }
         
