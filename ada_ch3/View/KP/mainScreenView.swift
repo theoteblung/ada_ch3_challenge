@@ -77,14 +77,14 @@ struct mainScreenView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 4)
             
-            VStack{
+            VStack {
                 HStack {
                     Text(activeNoise.rawValue.components(separatedBy: " ").first ?? "")
-                                .font(.system(size: 40, weight: .bold))
-                                .foregroundStyle(Color("TextSecondary"))
+                        .font(.system(size: 40, weight: .bold))
+                        .foregroundStyle(Color("TextSecondary"))
                     Text(activeNoise.rawValue.components(separatedBy: " ").last ?? "Noise")
-                                .font(.system(size: 40, weight: .light))
-                                .foregroundStyle(Color.gray)
+                        .font(.system(size: 40, weight: .light))
+                        .foregroundStyle(Color.gray)
                 }
                 
                 Text("playing...")
@@ -93,10 +93,12 @@ struct mainScreenView: View {
             }
             .padding(.top, 40)
             
+            // Optimized Infinite TabView using only 3 pages
             TabView(selection: $activeIndex) {
-                ForEach(0..<6000, id: \.self) { index in
+                ForEach(0..<3, id: \.self) { index in
+                    // Pulls the dynamic contextual noise type (Prev, Current, or Next)
                     let noise = noiseForIndex(index)
-
+                    
                     centerContentView(for: noise)
                         .tag(index)
                         .onAppear {
@@ -107,31 +109,34 @@ struct mainScreenView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .overlay(alignment: .bottom) {
                 HStack(spacing: 8) {
-                    // We only have 3 real cases, loop through them by index
                     ForEach(0..<3, id: \.self) { dotIndex in
                         Circle()
-                            // Check if the current visible noise index maps to this dot
-                            .fill(activeIndex % 3 == dotIndex ? (isDarkMode ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2)) : Color.gray.opacity(0.5))
+                            // Use the true Enum index position to fill the layout page dots correctly
+                            .fill(NoiseSelection.allCases.firstIndex(of: activeNoise) == dotIndex ? (isDarkMode ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2)) : Color.gray.opacity(0.5))
                             .frame(width: 8, height: 8)
-                            .animation(.smooth(duration: 0.3), value: activeIndex)
+                            .animation(.smooth(duration: 0.3), value: activeNoise)
                     }
                 }
                 .padding(.bottom, 120)
             }
             .onAppear {
-                let initialNoise = noiseForIndex(activeIndex)
-                activeNoise = initialNoise
-                
-                // Play the audio and sync state right away on launch
-                updateAudioForCurrentSelection(for: initialNoise)
-                settings.selectedNoise = initialNoise
+                // Always land natively on index 1 at startup
+                activeIndex = 1
+                updateAudioForCurrentSelection(for: activeNoise)
+                settings.selectedNoise = activeNoise
             }
             .onChange(of: activeIndex) { oldValue, newValue in
-                let currentNoise = noiseForIndex(newValue)
-                activeNoise = currentNoise
-
-                updateAudioForCurrentSelection(for: currentNoise)
-                settings.selectedNoise = currentNoise
+                // 1. Calculate what noise the user just slid to
+                let newlySelectedNoise = noiseForIndex(newValue)
+                
+                // 2. Play the new audio track instantly
+                if newValue != 1 {
+                    updateAudioForCurrentSelection(for: newlySelectedNoise)
+                    settings.selectedNoise = newlySelectedNoise
+                }
+                
+                // 3. Trigger rotation state adjustments and silently teleport index to 1
+                handleInfiniteLoop(currentValue: newValue)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
@@ -255,8 +260,49 @@ struct mainScreenView: View {
     
     private func noiseForIndex(_ index: Int) -> NoiseSelection {
         let allCases = NoiseSelection.allCases
-        let safetyIndex = (index % allCases.count + allCases.count) % allCases.count
-        return allCases[safetyIndex]
+        guard let currentIdx = allCases.firstIndex(of: activeNoise) else { return .brown }
+        
+        if index == 0 {
+            // Left Page: Get the previous item in the Enum array
+            let prevIdx = (currentIdx - 1 + allCases.count) % allCases.count
+            return allCases[prevIdx]
+        } else if index == 2 {
+            // Right Page: Get the next item in the Enum array
+            let nextIdx = (currentIdx + 1) % allCases.count
+            return allCases[nextIdx]
+        } else {
+            // Center Page: Always show the active selection
+            return activeNoise
+        }
+    }
+    
+    private func handleInfiniteLoop(currentValue: Int) {
+        let allCases = NoiseSelection.allCases
+        guard let currentIdx = allCases.firstIndex(of: activeNoise) else { return }
+        
+        if currentValue == 0 {
+            // User swiped left: Update the true state to the previous noise
+            let prevIdx = (currentIdx - 1 + allCases.count) % allCases.count
+            activeNoise = allCases[prevIdx]
+            resetToCenter()
+        } else if currentValue == 2 {
+            // User swiped right: Update the true state to the next noise
+            let nextIdx = (currentIdx + 1) % allCases.count
+            activeNoise = allCases[nextIdx]
+            resetToCenter()
+        }
+    }
+
+    private func resetToCenter() {
+        // A small delay ensures the visual slide completely finishes before we teleport back
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            var transaction = Transaction()
+            transaction.disablesAnimations = true // This hides the snap back to center!
+            
+            withTransaction(transaction) {
+                activeIndex = 1
+            }
+        }
     }
     
     private func updateAudioForCurrentSelection(for noise: NoiseSelection) {
