@@ -10,22 +10,9 @@
 		02330FF52FC57CC40083BD02 /* ada_ch3.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ada_ch3.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		68186D5B2FD2AAEA00028402 /* Exceptions for "ada_ch3" folder in "ada_ch3" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"ada-ch3-Info.plist",
-			);
-			target = 68A4E5182FC03D5500F93B48 /* ada_ch3 */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		68A4E51B2FC03D5500F93B48 /* ada_ch3 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				68186D5B2FD2AAEA00028402 /* Exceptions for "ada_ch3" folder in "ada_ch3" target */,
-			);
 			path = ada_ch3;
 			sourceTree = "<group>";
 		};
@@ -254,15 +241,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6782G2M9AF;
+				DEVELOPMENT_TEAM = Y4648M7S2X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ada-ch3-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Hush;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires microphone access to record audio notes.";
@@ -277,9 +261,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ada.ch3.hush;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.theo.ada-ch3";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -295,15 +278,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6782G2M9AF;
+				DEVELOPMENT_TEAM = Y4648M7S2X;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "ada-ch3-Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Hush;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "We need permission to play songs from Apple Music within the app";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "We need permission to analyze your usage";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app requires microphone access to record audio notes.";
@@ -318,9 +298,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = ada.ch3.hush;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.theo.ada-ch3";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
