@@ -25,8 +25,8 @@ enum BreathingShape {
 
 struct BreathingInfo: Identifiable {
     let id = UUID()
-    let name: String
-    let fullName: String
+    let name: String              // "4-4"
+    let fullName: String          // "Box Breathing"
     let shape: BreathingShape
     let whatItIs: String
     let howToDoIt: String
@@ -88,6 +88,7 @@ let breathingInfoList: [BreathingInfo] = [
 struct InfoPageView: View {
     @Environment(\.dismiss) private var dismiss
 
+    @State private var isAboutExpanded: Bool = false
     @State private var isNoiseExpanded: Bool = false
     @State private var isBreathingExpanded: Bool = false
 
@@ -97,6 +98,27 @@ struct InfoPageView: View {
 
             ScrollView {
                 VStack(spacing: 0) {
+                    // ── About section
+                    sectionHeader(
+                        title: "About",
+                        isExpanded: isAboutExpanded,
+                        onTap: {
+                            withAnimation(.easeInOut(duration: 0.35)) {
+                                isAboutExpanded.toggle()
+                            }
+                        }
+                    )
+
+                    if isAboutExpanded {
+                        aboutSection
+                            .padding(.top, 8)
+                            .padding(.bottom, 16)
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    Divider()
+                        .background(Color("CardBorder"))
+
                     // ── Noise section
                     sectionHeader(
                         title: "Noise",
@@ -175,6 +197,89 @@ struct InfoPageView: View {
         }
     }
 
+    // MARK: - About Section
+    private var aboutSection: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // App identity
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Hush")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(Color("TextPrimary"))
+                Text("Version 1.0.0")
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(Color("TextSecondary"))
+            }
+
+            infoBlock(
+                heading: "What is this app?",
+                body: "Hush is a calm companion designed for moments of overstimulation. It combines guided breathing exercises with curated background noise to help you regulate, focus, and rest. Built with sensory sensitivity in mind, every detail — from the muted color palette to the slow, predictable animations — is chosen to soothe rather than stimulate."
+            )
+
+            infoBlock(
+                heading: "How to use it",
+                body: "Tap the center of the home screen to begin a breathing session. Open the volume sheet at the bottom to adjust app, breathing guide, and background noise levels independently. Tap the gear icon to choose your preferred background sound or let the app pick automatically."
+            )
+
+            // Credits
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Made by")
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color("TextSecondary"))
+                Text("Team 12 ADA26")
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundColor(Color("TextPrimary"))
+            }
+
+//            // Contact / Links
+//            VStack(alignment: .leading, spacing: 12) {
+//                Text("Get in touch")
+//                    .font(.system(size: 17, weight: .regular))
+//                    .foregroundColor(Color("TextSecondary"))
+//
+//                aboutLink(label: "Send feedback", icon: "envelope.fill")
+//                aboutLink(label: "Privacy Policy", icon: "lock.fill")
+//                aboutLink(label: "Terms of Service", icon: "doc.text.fill")
+//                aboutLink(label: "Rate on the App Store", icon: "star.fill")
+//            }
+//
+//            // Acknowledgements
+//            infoBlock(
+//                heading: "Acknowledgements",
+//                body: "Breathing technique information sourced from published research and reputable health publications including Cleveland Clinic, Harvard Health, and the U.S. Navy SEAL training tradition. Background noise samples and sound design adapted for sensory comfort."
+//            )
+//
+//            // Copyright
+//            Text("© 2026 Hush. All rights reserved.")
+//                .font(.system(size: 12, weight: .regular))
+//                .foregroundColor(Color("TextSecondary"))
+//                .padding(.top, 4)
+        }
+    }
+
+    // MARK: - About Link Row
+    private func aboutLink(label: String, icon: String) -> some View {
+        Button(action: {
+            // TODO: wire up the actual destination per link
+        }) {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .regular))
+                    .foregroundColor(Color("TextPrimary"))
+                    .frame(width: 20)
+                Text(label)
+                    .font(.system(size: 16, weight: .regular))
+                    .foregroundColor(Color("TextPrimary"))
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(Color("TextSecondary"))
+            }
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
     // MARK: - Section Header
     private func sectionHeader(title: String, isExpanded: Bool, onTap: @escaping () -> Void) -> some View {
         Button(action: onTap) {
@@ -246,7 +351,8 @@ struct InfoPageView: View {
         }
     }
 
-    // MARK: - Reusables
+    // MARK: - Reusable Pieces
+
     private var playButton: some View {
         ZStack {
             Circle()

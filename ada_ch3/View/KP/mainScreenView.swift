@@ -69,6 +69,7 @@ struct mainScreenView: View {
             .background(Color("ColorBG").ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
         }
+        .environment(\.font, .system(.body, design: .default))
         .environmentObject(settings)
     }
 
@@ -82,16 +83,16 @@ struct mainScreenView: View {
             VStack {
                 HStack {
                     Text(activeNoise.rawValue.components(separatedBy: " ").first ?? "")
-                        .font(.system(size: 40, weight: .bold))
-                        .foregroundStyle(Color("TextSecondary"))
+                        .font(.system(size: 50, weight: .bold))
+                        .foregroundStyle(Color("TextPrimary").opacity(0.2))
                     Text(activeNoise.rawValue.components(separatedBy: " ").last ?? "Noise")
-                        .font(.system(size: 40, weight: .light))
-                        .foregroundStyle(Color.gray)
+                        .font(.system(size: 50, weight: .regular))
+                        .foregroundStyle(Color("TextPrimary").opacity(0.2))
                 }
                 
                 Text("playing...")
-                    .font(.system(size: 30, weight: .ultraLight))
-                    .foregroundStyle(Color("TextSecondary"))
+                    .font(.system(size: 30, weight: .regular))
+                    .foregroundStyle(Color("TextPrimary").opacity(0.2))
             }
             .padding(.top, 40)
             
@@ -157,7 +158,7 @@ struct mainScreenView: View {
             ZStack {
                 VStack {
                     Text("Tap to")
-                        .font(.system(size: 40, weight: .light))
+                        .font(.system(size: 40, weight: .regular))
                         .lineLimit(1)
                         .fixedSize()
                         .offset(x: -120)
