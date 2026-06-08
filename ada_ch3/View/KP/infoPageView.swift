@@ -202,7 +202,7 @@ struct InfoPageView: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color("TextPrimary"))
                 Spacer()
-                playButton
+//                playButton
             }
 
             infoBlock(
