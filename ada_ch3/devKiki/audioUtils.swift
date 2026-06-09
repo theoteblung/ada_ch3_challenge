@@ -31,15 +31,15 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
     @Published private(set) var soundPlaying: Sound?
     private var soundPlayer: AVAudioPlayer?
     private var soundPlayerLists: [String: AVAudioPlayer] = [:]   // keyed by file name
-    private let soundFadeDuration = 1.0
-    @Published var soundVolume: Float = 0.5
+    private let soundFadeDuration = 5.0
+    @Published var soundVolume: Float = 0.05
     
     //theo breath player
     @Published private(set) var breathPlaying: Sound?
     private var breathPlayer: AVAudioPlayer?
     @Published var isBreathPlaying = false
     @Published var breathIndex = 0
-    @Published var breathVolume: Float = 0.5
+    @Published var breathVolume: Float = 0.05
     
     override init() {
         super.init()
@@ -230,12 +230,12 @@ class AudioManager: NSObject, ObservableObject, AVAudioRecorderDelegate, AVAudio
         self.isPlaying = false
     }
     func setSoundVolume(volume: Float = 1.0) {
-        soundPlayer?.volume = volume
-        soundVolume = volume
+        soundPlayer?.setVolume(volume, fadeDuration: soundFadeDuration)
+        self.soundVolume = volume
     }
     func setBreathVolume(volume: Float = 1.0) {
-        breathPlayer?.volume = volume
-        breathVolume = volume
+        breathPlayer?.setVolume(volume, fadeDuration: soundFadeDuration)
+        self.breathVolume = volume
     }
     func playBreathDynamic() {
         

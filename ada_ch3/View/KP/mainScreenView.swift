@@ -311,18 +311,24 @@ struct mainScreenView: View {
     private func updateAudioForCurrentSelection(for noise: NoiseSelection) {
         switch noise {
         case .brown:
+            volumeManager.mediaVol = 20
+            volumeManager.voiceVol = 50
             volumeManager.noiseVol = 50
-            audioManager.soundVolume = 0.50
+            audioManager.setSoundVolume(volume: 0.1)
             audioManager.playNoiseDynamic(.brownNoise)
 
         case .white:
+            volumeManager.mediaVol = 20
+            volumeManager.voiceVol = 50
             volumeManager.noiseVol = 50
-            audioManager.soundVolume = 0.50
+            audioManager.setSoundVolume(volume: 0.1)
             audioManager.playNoiseDynamic(.whiteNoise)
 
         case .pink:
+            volumeManager.mediaVol = 10
+            volumeManager.voiceVol = 50
             volumeManager.noiseVol = 50
-            audioManager.soundVolume = 0.50
+            audioManager.setSoundVolume(volume: 0.05)
             audioManager.playNoiseDynamic(.pinkNoise)
         }
     }

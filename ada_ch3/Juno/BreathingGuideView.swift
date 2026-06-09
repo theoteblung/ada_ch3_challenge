@@ -27,6 +27,7 @@ struct BreathingGuideView: View {
     var onStop: () -> Void
 
     @EnvironmentObject var audioManager: AudioManager
+    @EnvironmentObject var volumeManager: VolumeManager
 
     // MARK: - What's selected
     @State private var selectedExercise: BreathingExercise = .box
@@ -97,6 +98,14 @@ struct BreathingGuideView: View {
         }
         .preferredColorScheme(.dark)
         .onAppear {
+            if (volumeManager.mediaVol < 50) {
+                volumeManager.mediaVol = 50
+                volumeManager.voiceVol = 50
+                volumeManager.noiseVol = 50
+                audioManager.setBreathVolume(volume: 0.25)
+                audioManager.setSoundVolume(volume: 0.25)
+            }
+            
             audioManager.breathIndex = 0
             startSession()
             // Drop the ball/trail onto the shape WITHOUT inheriting the screen's
@@ -303,4 +312,5 @@ struct BreathingGuideView: View {
 #Preview {
     BreathingGuideView(onStop: {})
         .environmentObject(AudioManager())
+        .environmentObject(VolumeManager())
 }
