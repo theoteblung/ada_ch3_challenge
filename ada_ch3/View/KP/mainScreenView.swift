@@ -14,11 +14,11 @@ struct mainScreenView: View {
     @EnvironmentObject var audioManager: AudioManager
     
     // MARK: - Animation State
-    @State private var pulse1Scale: CGFloat = 1.0
-    @State private var pulse1Opacity: Double = 0.5
-    @State private var pulse2Scale: CGFloat = 1.0
-    @State private var pulse2Opacity: Double = 0.2
-    @State private var innerScale: CGFloat = 1.0
+//    @State private var pulse1Scale: CGFloat = 1.0
+//    @State private var pulse1Opacity: Double = 0.5
+//    @State private var pulse2Scale: CGFloat = 1.0
+//    @State private var pulse2Opacity: Double = 0.2
+//    @State private var innerScale: CGFloat = 1.0
 
     // MARK: - App State
     @StateObject private var settings = AppSettings()
@@ -128,27 +128,29 @@ struct mainScreenView: View {
                     
                     centerContentView(for: noise)
                         .tag(index)
-                        .onAppear {
-                            startPulse()
-                        }
+//                        .onAppear {
+//                            startPulse()
+//                        }
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
             .accessibilityElement(children: .contain)
             .onAppear {
                 activeIndex = 1
+//                startPulse()
                 updateAudioForCurrentSelection(for: activeNoise)
                 settings.selectedNoise = activeNoise
             }
             .onChange(of: activeIndex) { oldValue, newValue in
-                let newlySelectedNoise = noiseForIndex(newValue)
-                
-                if newValue != 1 {
+                if newValue == 0 || newValue == 2 {
+                    let newlySelectedNoise = noiseForIndex(newValue)
+                    // Update audio immediately so it matches the swipe direction
                     updateAudioForCurrentSelection(for: newlySelectedNoise)
-                    settings.selectedNoise = newlySelectedNoise
+                    handleInfiniteLoop(currentValue: newValue)
+                } else if newValue == 1 {
+                    // If user swiped back to center manually, ensure audio matches
+                    updateAudioForCurrentSelection(for: activeNoise)
                 }
-                
-                handleInfiniteLoop(currentValue: newValue)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
@@ -193,49 +195,63 @@ struct mainScreenView: View {
                 }
                 .accessibilityHidden(true)
                 
-                ZStack {
-                    // Outer glow
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: noise.color.opacity(1.0), location: 0.0),
-                                    .init(color: noise.color.opacity(noise.outerEdgeOpacity(isLightMode: isLight)), location: 1.0)
-                                ]),
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: outerDiameter / 2
+                TimelineView(.animation) { context in
+                    // Calculate pulse based on time (2.4 second cycle)
+                    let t = context.date.timeIntervalSinceReferenceDate
+                    let phase = (t.truncatingRemainder(dividingBy: 2.4)) / 2.4
+                    
+                    // This creates a smooth ease-in-out pulse from 0.0 to 1.0 and back
+                    let pulseValue = (1 - cos(phase * 2 * .pi)) / 2
+                    
+                    // Map the pulseValue to your original scale/opacity targets
+                    let currentInnerScale = 1.0 + 0.10 * pulseValue
+                    let currentPulse2Scale = 1.0 + 0.25 * pulseValue
+                    let currentPulse2Opacity = 0.2 + 0.35 * pulseValue // 0.2 to 0.55
+                    
+                    ZStack {
+                        // Outer glow
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: noise.color.opacity(1.0), location: 0.0),
+                                        .init(color: noise.color.opacity(noise.outerEdgeOpacity(isLightMode: isLight)), location: 1.0)
+                                    ]),
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: outerDiameter / 2
+                                )
                             )
-                        )
-                        .frame(width: outerDiameter, height: outerDiameter)
-                        .scaleEffect(pulse2Scale)
-                        .opacity(pulse2Opacity)
-                        .offset(x:-15)
-                        .shadow(radius: currentShadow, x: currentShadow > 0 ? 4 : 0, y: currentShadow > 0 ? 3 : 0)
+                            .frame(width: outerDiameter, height: outerDiameter)
+                            .scaleEffect(currentPulse2Scale)
+                            .opacity(currentPulse2Opacity)
+                            .offset(x:-15)
+                            .shadow(radius: currentShadow, x: currentShadow > 0 ? 4 : 0, y: currentShadow > 0 ? 3 : 0)
 
-                    // Inner glow
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                gradient: Gradient(stops: [
-                                    .init(color: noise.color.opacity(1.0), location: 0.0),
-                                    .init(color: noise.color.opacity(noise.innerEdgeOpacity(isLightMode: isLight)), location: 1.0)
-                                ]),
-                                center: .center,
-                                startRadius: 0,
-                                endRadius: innerDiameter / 2
+                        // Inner glow
+                        Circle()
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: noise.color.opacity(1.0), location: 0.0),
+                                        .init(color: noise.color.opacity(noise.innerEdgeOpacity(isLightMode: isLight)), location: 1.0)
+                                    ]),
+                                    center: .center,
+                                    startRadius: 0,
+                                    endRadius: innerDiameter / 2
+                                )
                             )
-                        )
-                        .frame(width: innerDiameter, height: innerDiameter)
-                        .scaleEffect(innerScale)
-                        .offset(x: -15)
+                            .frame(width: innerDiameter, height: innerDiameter)
+                            .scaleEffect(currentInnerScale)
+                            .offset(x: -15)
 
-                    // Hand icon
-                    Image(systemName: "hand.tap.fill")
-                        .font(.system(size: 100, weight: .regular))
-                        .foregroundColor(.white)
-                        .offset(x: 15, y: 40)
-                        .shadow(radius: 8, x: 4, y: 3)
+                        // Hand icon
+                        Image(systemName: "hand.tap.fill")
+                            .font(.system(size: 100, weight: .regular))
+                            .foregroundColor(.white)
+                            .offset(x: 15, y: 40)
+                            .shadow(radius: 8, x: 4, y: 3)
+                    }
                 }
                 .frame(width: outerDiameter, height: outerDiameter)
                 .offset(x: 50)
@@ -315,26 +331,29 @@ struct mainScreenView: View {
         guard let currentIdx = allCases.firstIndex(of: activeNoise) else { return }
         
         if currentValue == 0 {
-            // User swiped left: Update the true state to the previous noise
             let prevIdx = (currentIdx - 1 + allCases.count) % allCases.count
-            activeNoise = allCases[prevIdx]
-            resetToCenter()
+            let newNoise = allCases[prevIdx]
+            resetToCenter(newNoise: newNoise, expectedCurrentValue: 0)
         } else if currentValue == 2 {
-            // User swiped right: Update the true state to the next noise
             let nextIdx = (currentIdx + 1) % allCases.count
-            activeNoise = allCases[nextIdx]
-            resetToCenter()
+            let newNoise = allCases[nextIdx]
+            resetToCenter(newNoise: newNoise, expectedCurrentValue: 2)
         }
     }
 
-    private func resetToCenter() {
+    private func resetToCenter(newNoise: NoiseSelection, expectedCurrentValue: Int) {
         // A small delay ensures the visual slide completely finishes before we teleport back
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            var transaction = Transaction()
-            transaction.disablesAnimations = true // This hides the snap back to center!
-            
-            withTransaction(transaction) {
-                activeIndex = 1
+            // ✅ SAFETY CHECK: Only snap back if the user hasn't swiped back or to another page
+            if activeIndex == expectedCurrentValue {
+                var transaction = Transaction()
+                transaction.disablesAnimations = true // Hides the snap back and the color change!
+                
+                withTransaction(transaction) {
+                    activeIndex = 1
+                    activeNoise = newNoise // ✅ Update color ONLY after snapping to center
+                    settings.selectedNoise = newNoise
+                }
             }
         }
     }
@@ -365,24 +384,24 @@ struct mainScreenView: View {
     }
 
     // MARK: - Pulse Animation
-    private func startPulse() {
-        innerScale    = 1.0
-        pulse2Scale   = 1.0
-        pulse2Opacity = 0.2
-
-        DispatchQueue.main.async {
-            let pulseAnimation = Animation
-                .easeInOut(duration: 2.4)
-                .repeatForever(autoreverses: true)
-
-            withAnimation(pulseAnimation) {
-                innerScale    = 1.10
-                pulse2Scale   = 1.25
-                pulse2Opacity = 0.55
-            }
-        }
-
-    }
+//    private func startPulse() {
+//        innerScale    = 1.0
+//        pulse2Scale   = 1.0
+//        pulse2Opacity = 0.2
+//
+//        DispatchQueue.main.async {
+//            let pulseAnimation = Animation
+//                .easeInOut(duration: 2.4)
+//                .repeatForever(autoreverses: true)
+//
+//            withAnimation(pulseAnimation) {
+//                innerScale    = 1.10
+//                pulse2Scale   = 1.25
+//                pulse2Opacity = 0.55
+//            }
+//        }
+//
+//    }
 
     // MARK: - Tap Handler
     private func handleTap() {

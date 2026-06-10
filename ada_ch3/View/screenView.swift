@@ -9,7 +9,7 @@ struct screenView: View {
         if onboardingManager.isCompleted {
             mainScreenView().environmentObject(volumeManager).environmentObject(audioManager)
         } else {
-            NavigationStack {
+            Section {
                 FirstOnboarding()
             }
             .environmentObject(onboardingManager)
