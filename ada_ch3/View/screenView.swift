@@ -6,13 +6,13 @@ struct screenView: View {
     @StateObject private var audioManager = AudioManager()
     
     var body: some View {
-        if onboardingManager.isCompleted {
+//        if onboardingManager.isCompleted {
             mainScreenView().environmentObject(volumeManager).environmentObject(audioManager)
-        } else {
-            Section {
-                FirstOnboarding()
-            }
-            .environmentObject(onboardingManager)
-        }
+//        } else {
+//            NavigationStack {
+//                FirstOnboarding()
+//            }
+//            .environmentObject(onboardingManager)
+//        }
     }
 }

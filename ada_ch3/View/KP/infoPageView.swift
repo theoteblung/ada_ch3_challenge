@@ -347,7 +347,7 @@ struct InfoPageView: View {
                 Text(breathing.name)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(Color("TextPrimary"))
-                    .accessibilityLabel("\(breathing.fullName), \(breathing.name)")
+                    .accessibilityLabel(spokenName(for: breathing))
                     .accessibilityAddTraits(.isHeader)
                 techniqueShape(for: breathing.shape)
                 Spacer()
@@ -355,7 +355,8 @@ struct InfoPageView: View {
 
             infoBlock(
                 heading: "What is the \(breathing.name) Breathing Technique?",
-                body: breathing.whatItIs
+                body: breathing.whatItIs,
+                spokenHeading: "What is the \(spokenName(for: breathing)) Breathing Technique?"
             )
             infoBlock(
                 heading: "How to do it",
@@ -407,7 +408,7 @@ struct InfoPageView: View {
     }
 
     @ViewBuilder
-    private func infoBlock(heading: String, body: String) -> some View {
+    private func infoBlock(heading: String, body: String, spokenHeading: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(heading)
                 .font(.system(size: 17, weight: .regular))
@@ -417,8 +418,17 @@ struct InfoPageView: View {
                 .foregroundColor(Color("TextPrimary"))
                 .fixedSize(horizontal: false, vertical: true)
         }
-        // Read the heading and its body together as a single, coherent passage.
         .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(spokenHeading ?? heading). \(body)")
+    }
+    
+    private func spokenName(for breathing: BreathingInfo) -> String {
+        switch breathing.name {
+        case "4-4-4-4": return "Box Breathing"
+        case "4-7-8":   return "Four seven eight"
+        case "4-6":     return "Four six"
+        default:        return breathing.name
+        }
     }
 }
 
