@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ldView2: View {
-    // Optional: Call AppStorage here too if you need to do specific logic based on the theme
     @AppStorage("isDarkMode") private var isDarkMode = false
     
     var body: some View {

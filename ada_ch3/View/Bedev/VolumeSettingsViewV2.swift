@@ -15,50 +15,58 @@ struct VolumeSettingsViewV2: View {
     @EnvironmentObject var audioManager: AudioManager
     
     var body: some View {
-        
-        VStack (alignment: .leading){
-            Text("Media")
-                .font(.callout)
-                .foregroundStyle(Color.gray)
-                .bold()
-            
-            HStack {
+        VStack (alignment: .leading, spacing: 20){
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Media")
+                    .font(.callout)
+                    .foregroundStyle(Color.gray)
+                    .bold()
+                    .accessibilityHidden(true)
                 
-                Button(action: {
+                HStack {
                     
-                    if !volumeManager.mediaMute {
-                        volumeManager.mediaPreMute = volumeManager.mediaVol
+                    Button(action: {
+                        
+                        if !volumeManager.mediaMute {
+                            volumeManager.mediaPreMute = volumeManager.mediaVol
+                        }
+                        
+                        volumeManager.mediaMute.toggle()
+                        
+                        if volumeManager.mediaMute {
+                            volumeManager.mediaVol = 0.0
+                        }else {
+                            volumeManager.mediaVol = volumeManager.mediaPreMute
+                        }
+                    }) {
+                        Image(systemName: volumeManager.mediaMute || volumeManager.mediaVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                            .tint(Color("IconColor"))
                     }
+                    .accessibilityLabel(volumeManager.mediaMute || volumeManager.mediaVol == 0.0 ? "Unmute Master Media" : "Mute Master Media")
                     
-                    volumeManager.mediaMute.toggle()
+                    Slider(value: $volumeManager.mediaVol, in: 0...100) {_ in if volumeManager.mediaVol > 0.0{
+                        volumeManager.mediaMute = false}}
+                        .accentColor(Color("AccentColor"))
+                        .onChange(of: volumeManager.mediaVol) { oldValue, newValue in
+                            let percentageGlobal = newValue / 100
+                            let backgroundVol = volumeManager.noiseVol * percentageGlobal
+                            let breathVol = volumeManager.voiceVol * percentageGlobal
+                            audioManager.setSoundVolume(volume: backgroundVol / 100 )
+                            audioManager.setBreathVolume(volume: breathVol / 100)
+                        }
+                        .accessibilityLabel("Master Media Volume")
+                        .accessibilityValue("\(Int(volumeManager.mediaVol)) percent")
                     
-                    if volumeManager.mediaMute {
-                        volumeManager.mediaVol = 0.0
-                    }else {
-                        volumeManager.mediaVol = volumeManager.mediaPreMute
-                    }
-                }) {
-                    Image(systemName: volumeManager.mediaMute || volumeManager.mediaVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                        .tint(Color("IconColor"))
-                    }
-                
-                Slider(value: $volumeManager.mediaVol, in: 0...100) {_ in if volumeManager.mediaVol > 0.0{
-                    volumeManager.mediaMute = false}}
-                    .accentColor(Color("AccentColor"))
-                    .onChange(of: volumeManager.mediaVol) { oldValue, newValue in
-                        let percentageGlobal = newValue / 100
-                        let backgroundVol = volumeManager.noiseVol * percentageGlobal
-                        let breathVol = volumeManager.voiceVol * percentageGlobal
-                        audioManager.setSoundVolume(volume: backgroundVol / 100 )
-                        audioManager.setBreathVolume(volume: breathVol / 100)
-                    }
-                
+                }
             }
-            
+        }
+        
+        VStack(alignment: .leading, spacing: 8) {
             Text("Breathing Voiceover")
                 .font(.callout)
                 .foregroundStyle(Color.gray)
                 .bold()
+                .accessibilityHidden(true)
             
             HStack {
                 
@@ -78,7 +86,8 @@ struct VolumeSettingsViewV2: View {
                 }) {
                     Image(systemName: volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
                         .tint(Color("IconColor"))
-                    }
+                }
+                .accessibilityLabel(volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "Unmute Breathing Voiceover" : "Mute Breathing Voiceover")
                 
                 Slider(value: $volumeManager.voiceVol, in: 0...100) {_ in if volumeManager.voiceVol > 0.0{
                     volumeManager.voiceMute = false}}
@@ -88,13 +97,18 @@ struct VolumeSettingsViewV2: View {
                         let mediaPercentage = volumeManager.mediaVol / 100
                         audioManager.setBreathVolume(volume: (newValue / 100) * mediaPercentage)
                     }
+                    .accessibilityLabel("Breathing Voiceover Volume")
+                    .accessibilityValue("\(Int(volumeManager.voiceVol)) percent")
                 
             }
-            
+        }
+        
+        VStack(alignment: .leading, spacing: 8) {
             Text("Background Noise")
                 .font(.callout)
                 .foregroundStyle(Color.gray)
                 .bold()
+                .accessibilityHidden(true)
             
             HStack {
                 
@@ -115,7 +129,8 @@ struct VolumeSettingsViewV2: View {
                 }) {
                     Image(systemName: volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
                         .tint(Color("IconColor"))
-                    }
+                }
+                .accessibilityLabel(volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "Unmute Background Noise" : "Mute Background Noise")
                 
                 Slider(value: $volumeManager.noiseVol, in: 0...100) {_ in if volumeManager.noiseVol > 0.0{
                     volumeManager.noiseMute = false}}
@@ -125,7 +140,17 @@ struct VolumeSettingsViewV2: View {
                         let mediaPercentage = volumeManager.mediaVol / 100
                         audioManager.setSoundVolume(volume: (newValue / 100) * mediaPercentage)
                     }
+                    .accessibilityLabel("Background Noise Volume")
+                    .accessibilityValue("\(Int(volumeManager.noiseVol)) percent")
             }
+        }
+        
+        VStack (alignment: .leading){
+            
+            
+            
+            
+            
         }
         
         

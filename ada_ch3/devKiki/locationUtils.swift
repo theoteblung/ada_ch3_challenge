@@ -22,20 +22,16 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         
         let status = manager.authorizationStatus
         if status == .notDetermined {
-            // Force the system prompt to appear
             manager.requestWhenInUseAuthorization()
         } else {
-            // If already determined (Allowed or Denied previously), return the result immediately
             completion(status == .authorizedWhenInUse || status == .authorizedAlways)
         }
     }
     
-    // This delegate method handles what happens RIGHT after the user acts on the popup
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         if status != .notDetermined {
             onPermissionResult?(status == .authorizedWhenInUse || status == .authorizedAlways)
-            // Clear the completion block so it doesn't accidentally trigger multiple times
             onPermissionResult = nil
         }
     }

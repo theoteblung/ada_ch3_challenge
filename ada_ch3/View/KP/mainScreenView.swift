@@ -58,11 +58,18 @@ struct mainScreenView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityHidden(isVolSheetExpanded)
 
                 VolumeSheet(isVolSheetExpanded: $isVolSheetExpanded)
                     .ignoresSafeArea(edges: .bottom)
                     .environmentObject(volumeManager)
                     .environmentObject(audioManager)
+                    .zIndex(1.0)
+                    .accessibilityAction(AccessibilityActionKind.escape) {
+                        withAnimation(.easeInOut(duration: 0.35)) {
+                            isVolSheetExpanded = false
+                        }
+                    }
             }
             .animation(.easeInOut(duration: 0.8), value: isPlaying)
             .preferredColorScheme(isDarkMode ? .dark : .light)
@@ -95,11 +102,28 @@ struct mainScreenView: View {
                     .foregroundStyle(Color("TextPrimary").opacity(0.2))
             }
             .padding(.top, 40)
+            .accessibilityElement(children: .ignore)
+            .accessibilityValue("\(activeNoise.rawValue) Currently playing.")
+            .accessibilityAdjustableAction { direction in
+                let allCases = NoiseSelection.allCases
+                guard let currentIdx = allCases.firstIndex(of: activeNoise) else { return }
+                
+                if direction == .increment {
+                    let nextIdx = (currentIdx + 1) % allCases.count
+                    activeNoise = allCases[nextIdx]
+                    updateAudioForCurrentSelection(for: activeNoise)
+                    settings.selectedNoise = activeNoise
+                } else if direction == .decrement {
+                    let prevIdx = (currentIdx - 1 + allCases.count) % allCases.count
+                    activeNoise = allCases[prevIdx]
+                    updateAudioForCurrentSelection(for: activeNoise)
+                    settings.selectedNoise = activeNoise
+                }
+            }
             
-            // Optimized Infinite TabView using only 3 pages
+            // noise tabview
             TabView(selection: $activeIndex) {
                 ForEach(0..<3, id: \.self) { index in
-                    // Pulls the dynamic contextual noise type (Prev, Current, or Next)
                     let noise = noiseForIndex(index)
                     
                     centerContentView(for: noise)
@@ -110,40 +134,38 @@ struct mainScreenView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .overlay(alignment: .bottom) {
-                HStack(spacing: 8) {
-                    ForEach(0..<3, id: \.self) { dotIndex in
-                        Circle()
-                            // Use the true Enum index position to fill the layout page dots correctly
-                            .fill(NoiseSelection.allCases.firstIndex(of: activeNoise) == dotIndex ? (isDarkMode ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2)) : Color.gray.opacity(0.5))
-                            .frame(width: 8, height: 8)
-                            .animation(.smooth(duration: 0.3), value: activeNoise)
-                    }
-                }
-                .padding(.bottom, 120)
-            }
+            .accessibilityElement(children: .contain)
             .onAppear {
-                // Always land natively on index 1 at startup
                 activeIndex = 1
                 updateAudioForCurrentSelection(for: activeNoise)
                 settings.selectedNoise = activeNoise
             }
             .onChange(of: activeIndex) { oldValue, newValue in
-                // 1. Calculate what noise the user just slid to
                 let newlySelectedNoise = noiseForIndex(newValue)
                 
-                // 2. Play the new audio track instantly
                 if newValue != 1 {
                     updateAudioForCurrentSelection(for: newlySelectedNoise)
                     settings.selectedNoise = newlySelectedNoise
                 }
                 
-                // 3. Trigger rotation state adjustments and silently teleport index to 1
                 handleInfiniteLoop(currentValue: newValue)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Rectangle())
             .onTapGesture { handleTap() }
+        }
+        .overlay(alignment: .bottom) {
+            HStack(spacing: 8) {
+                ForEach(0..<3, id: \.self) { dotIndex in
+                    Circle()
+                        .fill(NoiseSelection.allCases.firstIndex(of: activeNoise) == dotIndex ? (isDarkMode ? Color.white : Color(red: 0.2, green: 0.2, blue: 0.2)) : Color.gray.opacity(0.5))
+                        .frame(width: 8, height: 8)
+                        .animation(.smooth(duration: 0.3), value: activeNoise)
+                }
+            }
+            .padding(.bottom, 120)
+            .accessibilityElement(children: .ignore)
+            .accessibilityHidden(true)
         }
     }
     
@@ -169,6 +191,7 @@ struct mainScreenView: View {
                         .fixedSize()
                         .offset(x: -110)
                 }
+                .accessibilityHidden(true)
                 
                 ZStack {
                     // Outer glow
@@ -219,6 +242,10 @@ struct mainScreenView: View {
             }
             .offset(x: 40)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Start Breathing Guide")
+        .accessibilityHint("Double tap to begin the session.")
+        .accessibilityAddTraits(.isButton)
     }
 
     // MARK: - Top Bar
@@ -234,6 +261,8 @@ struct mainScreenView: View {
                     .padding(8)
                     .contentShape(Rectangle())
             }
+            .accessibilityLabel("Information")
+//            .accessibilityHint("Opens noise info and breathing details.")
 
             Spacer()
             
@@ -246,6 +275,8 @@ struct mainScreenView: View {
                     .foregroundColor(Color("IconBG"))
                     .padding(8)
             }
+            .accessibilityLabel("Appearance Mode")
+//            .accessibilityValue(isDarkMode ? "Dark Mode Active" : "Light Mode Active")
             
             //setting button
 //            NavigationLink {
@@ -355,6 +386,8 @@ struct mainScreenView: View {
 
     // MARK: - Tap Handler
     private func handleTap() {
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
+        
         withAnimation(.easeInOut(duration: 0.8)) {
             if (isVolSheetExpanded) {
                 isVolSheetExpanded.toggle()

@@ -35,6 +35,9 @@ struct VolumeSheet: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Volume Manager")
+            .accessibilityValue(isVolSheetExpanded ? "Expanded" : "Collapsed")
+            .accessibilityHint("Double tap to toggle the volume setting.")
 
             // Expanded content placeholder (to be built out later)
             if isVolSheetExpanded {
@@ -68,6 +71,7 @@ struct VolumeSheet: View {
             VolumeSheetTopBorder()
                 .stroke(Color("CardBorder"), lineWidth: 1)
         )
+        .accessibilityElement(children: isVolSheetExpanded ? .contain : .combine)
     }
 }
 

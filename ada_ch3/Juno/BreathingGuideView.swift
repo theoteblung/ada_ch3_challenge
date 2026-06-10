@@ -28,6 +28,8 @@ struct BreathingGuideView: View {
 
     @EnvironmentObject var audioManager: AudioManager
     @EnvironmentObject var volumeManager: VolumeManager
+    
+    @AccessibilityFocusState private var isIntroFocused: Bool
 
     // MARK: - What's selected
     @State private var selectedExercise: BreathingExercise = .box
@@ -53,7 +55,7 @@ struct BreathingGuideView: View {
     private let maxBallScale: CGFloat = 1.8
     private let minRingScale: CGFloat = 1      // circle ring at rest / fully exhaled
     private let maxRingScale: CGFloat = 1.25       // circle ring fully inhaled (fills the diagram)
-    private let startDelay: Double = 1.0          // let the screen transition settle first
+    private let startDelay: Double = 3.0          // let the screen transition settle first
     private let labelFadeOutDuration: Double = 0.4
     private let labelGapDuration: Double = 0.5    // quiet beat between phases
 
@@ -67,9 +69,13 @@ struct BreathingGuideView: View {
 
     var body: some View {
         ZStack {
-            Color("ColorBG").ignoresSafeArea()
 
             VStack(spacing: 0) {
+                Text("Breathing guide started.")
+                        .foregroundColor(.clear)
+                        .frame(width: 0, height: 0)
+                        .accessibilityFocused($isIntroFocused)
+                        .accessibilityHidden(false)
                 // ── Top bar (close button)
                 HStack {
                     Spacer()
@@ -82,6 +88,7 @@ struct BreathingGuideView: View {
                             .padding(8)
                             .contentShape(Rectangle())
                     }
+                    .accessibilityLabel("Close session")
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 4)
@@ -97,6 +104,7 @@ struct BreathingGuideView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .accessibilityElement(children: .contain)
         .onAppear {
             if (volumeManager.mediaVol < 50) {
                 volumeManager.mediaVol = 50
@@ -108,6 +116,11 @@ struct BreathingGuideView: View {
             
             audioManager.breathIndex = 0
             startSession()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                    isIntroFocused = true
+                }
+            
             // Drop the ball/trail onto the shape WITHOUT inheriting the screen's
             // entrance animation (no fly-in from the centre).
             DispatchQueue.main.async {
@@ -171,6 +184,8 @@ struct BreathingGuideView: View {
                 )
         }
         .frame(width: diagramSize, height: diagramSize)
+        .accessibilityElement(children: .ignore)
+        .accessibilityHidden(true)
     }
 
     // MARK: - Selector
@@ -196,9 +211,14 @@ struct BreathingGuideView: View {
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(exercise.shortName) Exercise")
+                    .accessibilityValue(exercise == selectedExercise ? "Currently Selected" : "")
+                    .accessibilityHint("Double tap to switch to this breathing pattern style layout.")
                 }
             }
         }
+        .accessibilityElement(children: .contain)
     }
 
     private func iconName(for shape: BreathShape) -> String {
@@ -235,6 +255,7 @@ struct BreathingGuideView: View {
         // Play the sound for this phase.
         audioManager.breathIndex = phase.type.breathIndex
         audioManager.playBreathDynamic()
+        
 
         // Fade the label in.
         withAnimation(.easeInOut(duration: 0.6)) {
@@ -293,6 +314,9 @@ struct BreathingGuideView: View {
         cancelSession()                       // stop the old exercise's pending steps
         audioManager.stopBreathDynamic()
         selectedExercise = exercise
+        
+        UIAccessibility.post(notification: .announcement, argument: "Switched to \(exercise.shortName) layout configuration.")
+        
         startSession()
     }
 
