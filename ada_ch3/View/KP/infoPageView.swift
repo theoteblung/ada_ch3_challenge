@@ -193,6 +193,9 @@ struct InfoPageView: View {
                     }
                     .foregroundColor(Color("TextPrimary").opacity(0.85))
                 }
+                .accessibilityLabel("Back")
+                .accessibilityHint("Returns to the home screen")
+                .accessibilityAddTraits(.isButton)
             }
         }
     }
@@ -209,6 +212,9 @@ struct InfoPageView: View {
                     .font(.system(size: 14, weight: .regular))
                     .foregroundColor(Color("TextSecondary"))
             }
+            // Read as one phrase: "Hush, Version 1.0.0".
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
 
             infoBlock(
                 heading: "What is this app?",
@@ -229,6 +235,7 @@ struct InfoPageView: View {
                     .font(.system(size: 17, weight: .regular))
                     .foregroundColor(Color("TextPrimary"))
             }
+            .accessibilityElement(children: .combine)
 
 //            // Contact / Links
 //            VStack(alignment: .leading, spacing: 12) {
@@ -278,6 +285,7 @@ struct InfoPageView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 
     // MARK: - Section Header
@@ -297,6 +305,12 @@ struct InfoPageView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // Expandable disclosure row: announce the name, its state, and what a tap does.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(isExpanded ? "Expanded" : "Collapsed")
+        .accessibilityHint(isExpanded ? "Collapses the section" : "Expands the section")
+        .accessibilityAddTraits([.isButton, .isHeader])
     }
 
     // MARK: - Noise Section
@@ -306,6 +320,7 @@ struct InfoPageView: View {
                 Text(noise.name)
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(Color("TextPrimary"))
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
 //                playButton
             }
@@ -332,6 +347,8 @@ struct InfoPageView: View {
                 Text(breathing.name)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(Color("TextPrimary"))
+                    .accessibilityLabel("\(breathing.fullName), \(breathing.name)")
+                    .accessibilityAddTraits(.isHeader)
                 techniqueShape(for: breathing.shape)
                 Spacer()
             }
@@ -363,6 +380,9 @@ struct InfoPageView: View {
                 .foregroundColor(Color("TextPrimary"))
                 .offset(x: 1)
         }
+        .accessibilityElement()
+        .accessibilityLabel("Play sample")
+        .accessibilityAddTraits(.isButton)
     }
 
     @ViewBuilder
@@ -372,14 +392,17 @@ struct InfoPageView: View {
             RoundedRectangle(cornerRadius: 4, style: .continuous)
                 .strokeBorder(Color("TextPrimary"), lineWidth: 2)
                 .frame(width: 28, height: 28)
+                .accessibilityHidden(true)
         case .triangle:
             TriangleShape()
                 .stroke(Color("TextPrimary"), style: StrokeStyle(lineWidth: 2, lineJoin: .round))
                 .frame(width: 30, height: 28)
+                .accessibilityHidden(true)
         case .circle:
             Circle()
                 .strokeBorder(Color("TextPrimary"), lineWidth: 2)
                 .frame(width: 28, height: 28)
+                .accessibilityHidden(true)
         }
     }
 
@@ -394,6 +417,8 @@ struct InfoPageView: View {
                 .foregroundColor(Color("TextPrimary"))
                 .fixedSize(horizontal: false, vertical: true)
         }
+        // Read the heading and its body together as a single, coherent passage.
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -403,4 +428,3 @@ struct InfoPageView: View {
     }
     .preferredColorScheme(.dark)
 }
-

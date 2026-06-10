@@ -185,7 +185,7 @@ struct mainScreenView: View {
                         .font(.system(size: 40, weight: .regular))
                         .lineLimit(1)
                         .fixedSize()
-                        .offset(x: -120)
+                        .offset(x: -118)
                     
                     Text("start")
                         .font(.system(size: 40, weight: .bold))
