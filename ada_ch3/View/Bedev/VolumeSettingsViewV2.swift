@@ -84,7 +84,7 @@ struct VolumeSettingsViewV2: View {
                         volumeManager.voiceVol = volumeManager.voicePreMute
                     }
                 }) {
-                    Image(systemName: volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    Image(systemName: volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "person.slash.fill" : "person.fill")
                         .tint(Color("IconColor"))
                 }
                 .accessibilityLabel(volumeManager.voiceMute || volumeManager.voiceVol == 0.0 ? "Unmute Breathing Voiceover" : "Mute Breathing Voiceover")
@@ -127,7 +127,7 @@ struct VolumeSettingsViewV2: View {
                     }
                     
                 }) {
-                    Image(systemName: volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    Image(systemName: volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "music.note.slash" : "music.note")
                         .tint(Color("IconColor"))
                 }
                 .accessibilityLabel(volumeManager.noiseMute || volumeManager.noiseVol == 0.0 ? "Unmute Background Noise" : "Mute Background Noise")
